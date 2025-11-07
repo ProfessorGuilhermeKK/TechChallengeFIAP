@@ -17,7 +17,6 @@ Este projeto foi desenvolvido como parte do Tech Challenge da FIAP, focado em cr
 - ✅ **Autenticação JWT**: Sistema de autenticação seguro para endpoints protegidos
 - ✅ **ML-Ready**: Endpoints específicos para consumo de modelos de Machine Learning
 - ✅ **Monitoramento**: Sistema de logs estruturados em JSON
-- ✅ **Deploy Ready**: Configurado para deploy em Render, Heroku ou plataformas similares
 - ✅ **Documentação Completa**: Swagger UI e ReDoc inclusos
 
 ## 📋 Índice
@@ -88,15 +87,17 @@ TECH-CHALLENGE/
 ├── utils/                   # Utilitários
 │   └── logger.py           # Sistema de logging
 ├── data/                    # Armazenamento de dados
-│   └── books.csv           # Dados extraídos
-├── logs/                    # Logs da aplicação
+│   ├── books.csv           # Dados extraídos
+│   └── .gitkeep            # Mantém a pasta versionada
+├── logs/                    # Logs da aplicação (.gitkeep mantém a pasta)
 ├── tests/                   # Testes automatizados
 ├── main.py                  # Aplicação principal
 ├── config.py               # Configurações
 ├── requirements.txt        # Dependências Python
-├── Procfile                # Configuração Heroku
-├── render.yaml             # Configuração Render
-└── README.md               # Este arquivo
+├── run_api.py              # Script para subir a API
+├── run_scraping.py         # Script para executar o scraping
+├── API_EXAMPLES.md         # Exemplos de chamadas
+└── ARCHITECTURE.md         # Documentação arquitetural
 ```
 
 ## 🚀 Instalação
@@ -283,54 +284,13 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
 
 ## 📦 Deploy
 
-### Deploy no Render
+Este repositório mantém apenas os artefatos essenciais para o desafio. Para publicar a API em produção:
 
-1. Crie uma conta em [Render](https://render.com)
-2. Conecte seu repositório GitHub
-3. Crie um novo Web Service
-4. Configure as variáveis de ambiente:
-   - `SECRET_KEY`: Chave secreta para JWT
-   - `ENVIRONMENT`: production
-5. Deploy será feito automaticamente
+- Provisione uma plataforma de sua preferência (Render, Railway, Fly.io, etc.)
+- Configure as variáveis de ambiente listadas na seção de instalação
+- Execute `uvicorn main:app --host 0.0.0.0 --port 8000`
 
-### Deploy no Heroku
-
-```bash
-# Instalar Heroku CLI
-# https://devcenter.heroku.com/articles/heroku-cli
-
-# Login
-heroku login
-
-# Criar aplicação
-heroku create books-api-fiap
-
-# Configurar variáveis
-heroku config:set SECRET_KEY=your-secret-key
-heroku config:set ENVIRONMENT=production
-
-# Deploy
-git push heroku main
-
-# Abrir aplicação
-heroku open
-```
-
-### Deploy no Fly.io
-
-```bash
-# Instalar Fly CLI
-# https://fly.io/docs/hands-on/install-flyctl/
-
-# Login
-fly auth login
-
-# Criar aplicação
-fly launch
-
-# Deploy
-fly deploy
-```
+> Dica: utilize `run_api.py` como entrypoint em ambientes que suportem Python puro sem necessidade de arquivos adicionais.
 
 ## 🤖 Machine Learning
 

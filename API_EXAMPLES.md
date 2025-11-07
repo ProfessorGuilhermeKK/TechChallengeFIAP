@@ -6,7 +6,7 @@ Este documento contém exemplos práticos de todas as chamadas disponíveis na B
 
 ```
 Local: http://localhost:8000
-Produção: https://sua-api.render.com (ou outro provedor)
+Produção: configure o domínio conforme a plataforma escolhida (ex.: Render, Railway, Fly.io)
 ```
 
 ## 📋 Índice

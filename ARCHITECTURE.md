@@ -4,6 +4,8 @@
 
 Este documento detalha a arquitetura do sistema Books API, incluindo componentes, fluxo de dados, decisões de design e considerações para escalabilidade futura.
 
+> Nota: O repositório mantém apenas os artefatos essenciais ao desafio (scraper, API, dados e documentação). Arquivos específicos de provedores de deploy foram removidos para garantir uma base mínima e reutilizável.
+
 ## 📐 Diagrama Arquitetural
 
 ```
