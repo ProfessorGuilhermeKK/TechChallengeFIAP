@@ -1,0 +1,33 @@
+# Core API
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+
+# Web Scraping
+requests
+beautifulsoup4
+lxml
+
+# Data Processing
+pandas
+numpy
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# Database (opcional para futuro)
+sqlalchemy
+
+# Monitoring & Logging
+python-json-logger
+
+# CORS
+python-dotenv
+
+# Testing (opcional)
+pytest
+httpx
+

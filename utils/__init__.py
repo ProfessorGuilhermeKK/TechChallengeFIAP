@@ -1,0 +1,6 @@
+"""
+Utilitários diversos
+"""
+
+
+
