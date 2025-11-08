@@ -159,6 +159,7 @@ python run_scraping.py
 ```
 
 Isso irá:
+
 - Extrair todos os livros de todas as categorias
 - Salvar os dados em `data/books.csv`
 - Exibir estatísticas dos dados coletados
@@ -192,58 +193,58 @@ Acesse a documentação interativa:
 
 #### 📚 Livros
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/v1/books` | Lista todos os livros (paginado) |
-| GET | `/api/v1/books/{id}` | Detalhes de um livro específico |
-| GET | `/api/v1/books/search/query` | Busca livros por filtros |
-| GET | `/api/v1/books/top-rated/list` | Livros mais bem avaliados |
-| GET | `/api/v1/books/price-range/filter` | Filtra por faixa de preço |
+| Método | Endpoint                             | Descrição                      |
+| ------- | ------------------------------------ | -------------------------------- |
+| GET     | `/api/v1/books`                    | Lista todos os livros (paginado) |
+| GET     | `/api/v1/books/{id}`               | Detalhes de um livro específico |
+| GET     | `/api/v1/books/search/query`       | Busca livros por filtros         |
+| GET     | `/api/v1/books/top-rated/list`     | Livros mais bem avaliados        |
+| GET     | `/api/v1/books/price-range/filter` | Filtra por faixa de preço       |
 
 #### 🏷️ Categorias
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/v1/categories` | Lista todas as categorias |
+| Método | Endpoint               | Descrição               |
+| ------- | ---------------------- | ------------------------- |
+| GET     | `/api/v1/categories` | Lista todas as categorias |
 
 #### 💚 Health Check
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/v1/health` | Status da API e dados |
+| Método | Endpoint           | Descrição           |
+| ------- | ------------------ | --------------------- |
+| GET     | `/api/v1/health` | Status da API e dados |
 
 ### Endpoints de Insights (Opcionais)
 
 #### 📊 Estatísticas
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/v1/stats/overview` | Estatísticas gerais da coleção |
-| GET | `/api/v1/stats/categories` | Estatísticas por categoria |
+| Método | Endpoint                     | Descrição                       |
+| ------- | ---------------------------- | --------------------------------- |
+| GET     | `/api/v1/stats/overview`   | Estatísticas gerais da coleção |
+| GET     | `/api/v1/stats/categories` | Estatísticas por categoria       |
 
 ### Endpoints de Autenticação (Bônus)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/v1/auth/login` | Obter token JWT |
-| POST | `/api/v1/auth/refresh` | Renovar token |
-| GET | `/api/v1/auth/me` | Informações do usuário |
+| Método | Endpoint                 | Descrição               |
+| ------- | ------------------------ | ------------------------- |
+| POST    | `/api/v1/auth/login`   | Obter token JWT           |
+| POST    | `/api/v1/auth/refresh` | Renovar token             |
+| GET     | `/api/v1/auth/me`      | Informações do usuário |
 
 ### Endpoints ML-Ready (Bônus)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/v1/ml/features` | Features formatadas para ML |
-| GET | `/api/v1/ml/training-data` | Dataset para treinamento |
-| POST | `/api/v1/ml/predictions` | Submeter predições |
-| GET | `/api/v1/ml/stats` | Estatísticas para análise ML |
+| Método | Endpoint                     | Descrição                    |
+| ------- | ---------------------------- | ------------------------------ |
+| GET     | `/api/v1/ml/features`      | Features formatadas para ML    |
+| GET     | `/api/v1/ml/training-data` | Dataset para treinamento       |
+| POST    | `/api/v1/ml/predictions`   | Submeter predições           |
+| GET     | `/api/v1/ml/stats`         | Estatísticas para análise ML |
 
 ### Endpoints Administrativos (Protegidos)
 
-| Método | Endpoint | Descrição | Autenticação |
-|--------|----------|-----------|--------------|
-| POST | `/api/v1/scraping/trigger` | Iniciar scraping | ✅ Requerida |
-| POST | `/api/v1/scraping/reload` | Recarregar dados | ✅ Requerida |
+| Método | Endpoint                     | Descrição      | Autenticação |
+| ------- | ---------------------------- | ---------------- | -------------- |
+| POST    | `/api/v1/scraping/trigger` | Iniciar scraping | ✅ Requerida   |
+| POST    | `/api/v1/scraping/reload`  | Recarregar dados | ✅ Requerida   |
 
 ## 🔐 Autenticação
 
@@ -265,6 +266,7 @@ curl -X POST "http://localhost:8000/api/v1/auth/login" \
 ```
 
 Resposta:
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -375,6 +377,7 @@ curl -X GET "http://localhost:8000/api/v1/stats/overview"
 ```
 
 Resposta:
+
 ```json
 {
   "total_books": 1000,
@@ -498,32 +501,3 @@ Contribuições são bem-vindas! Por favor:
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👥 Autores
-
-- **Seu Nome** - *Tech Challenge FIAP* - POSTECH
-
-## 📞 Contato
-
-- Email: seu-email@exemplo.com
-- LinkedIn: [Seu Perfil](https://linkedin.com/in/seu-perfil)
-- GitHub: [@seu-usuario](https://github.com/seu-usuario)
-
-## 🙏 Agradecimentos
-
-- FIAP - POSTECH pela oportunidade
-- Books to Scrape pela disponibilização dos dados
-- Comunidade FastAPI pelo excelente framework
-
----
-
-**⚠️ Nota**: Este projeto é para fins educacionais. Sempre respeite os termos de serviço dos sites ao fazer web scraping.
-
-**🎓 Tech Challenge FIAP - 2025**
-
-
-
