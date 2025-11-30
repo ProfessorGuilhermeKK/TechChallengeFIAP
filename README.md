@@ -29,6 +29,11 @@ Este projeto foi desenvolvido como parte do Tech Challenge da FIAP, focado em cr
 - [Deploy](#-deploy)
 - [Machine Learning](#-machine-learning)
 - [Exemplos](#-exemplos)
+- [Testes](#-testes)
+- [Monitoramento](#-monitoramento)
+- [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
+- [Roadmap Futuro](#-roadmap-futuro)
+- [Autores](#-autores)
 - [Contribuindo](#-contribuindo)
 
 ## 🏗️ Arquitetura
@@ -92,12 +97,21 @@ TECH-CHALLENGE/
 ├── logs/                    # Logs da aplicação (.gitkeep mantém a pasta)
 ├── tests/                   # Testes automatizados
 ├── main.py                  # Aplicação principal
+├── dashboard.py            # Dashboard Streamlit
 ├── config.py               # Configurações
 ├── requirements.txt        # Dependências Python
 ├── run_api.py              # Script para subir a API
+├── run_dashboard.py        # Script para subir o dashboard
 ├── run_scraping.py         # Script para executar o scraping
+├── demo_jwt.py             # Demonstração de JWT
+├── test_auth.py            # Testes de autenticação
 ├── API_EXAMPLES.md         # Exemplos de chamadas
-└── ARCHITECTURE.md         # Documentação arquitetural
+├── ARCHITECTURE.md         # Documentação arquitetural
+├── Procfile                # Configuração para Heroku
+├── render.yaml             # Configuração para Render
+├── fly.toml                # Configuração para Fly.io
+├── railway.json            # Configuração para Railway
+└── vercel.json             # Configuração para Vercel
 ```
 
 ## 🚀 Instalação
@@ -519,12 +533,14 @@ st.metric("Preço Médio", f"£{overview['average_price']:.2f}")
 ## 🛠️ Tecnologias Utilizadas
 
 - **FastAPI**: Framework web moderno e rápido
+- **Streamlit**: Dashboard interativo para visualização de dados
 - **Pandas**: Manipulação e análise de dados
 - **BeautifulSoup4**: Web scraping
 - **Pydantic**: Validação de dados
 - **JWT**: Autenticação segura
 - **Uvicorn**: Servidor ASGI
 - **Python-JSON-Logger**: Logs estruturados
+- **Plotly**: Visualizações interativas
 
 ## 📈 Roadmap Futuro
 
@@ -533,10 +549,33 @@ st.metric("Preço Médio", f"£{overview['average_price']:.2f}")
 - [ ] Rate limiting
 - [ ] Webhooks para notificações
 - [ ] API GraphQL
-- [ ] Dashboard Streamlit
+- [x] Dashboard Streamlit ✅
 - [ ] Containerização com Docker
 - [ ] CI/CD com GitHub Actions
 - [ ] Modelos ML pré-treinados
+
+## 👥 Autores
+
+Este projeto foi desenvolvido por:
+
+- **Bernardo Barro**  
+  📧 [bernardo.barro@gmail.com](mailto:bernardo.barro@gmail.com)
+
+- **Carlos Eduardo Araujo Del Isola**  
+  📧 [carlos.ed3@hotmail.com](mailto:carlos.ed3@hotmail.com)
+
+- **Guilherme Klein Klug**  
+  📧 [guilherme.kleinklug@gmail.com](mailto:guilherme.kleinklug@gmail.com)
+
+- **Henrique Walmir Schuler**  
+  📧 [henriquewschuler@gmail.com](mailto:henriquewschuler@gmail.com)
+
+- **Karina Marques de Oliveira**  
+  📧 [karinamarquesp@outlook.com.br](mailto:karinamarquesp@outlook.com.br)
+
+---
+
+**Tech Challenge FIAP - 2025**
 
 ## 🤝 Contribuindo
 
