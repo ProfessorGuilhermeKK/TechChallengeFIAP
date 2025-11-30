@@ -22,11 +22,11 @@ wheels/
 
 # Virtual Environment
 venv/
-env/
 ENV/
+env/
 .venv
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -35,25 +35,31 @@ ENV/
 
 # Environment variables
 .env
-
-# Data files
-data/*.csv
-!data/.gitkeep
+.env.local
+.env.*.local
 
 # Logs
 logs/*.log
-!logs/.gitkeep
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Data (opcional - descomente se não quiser versionar)
+# data/*.csv
+
+# Streamlit
+.streamlit/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 
+# Jupyter
+.ipynb_checkpoints/
 
-
-
-
+# Deploy
+.railway/
+.fly/

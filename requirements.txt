@@ -31,3 +31,7 @@ python-dotenv
 pytest
 httpx
 
+# Dashboard
+streamlit
+plotly
+

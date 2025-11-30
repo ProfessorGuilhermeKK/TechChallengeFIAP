@@ -124,11 +124,15 @@ async def internal_error_handler(request: Request, exc):
 @app.get("/", tags=["root"])
 async def root():
     """Rota raiz da API"""
+    dashboard_url = "https://seu-dashboard.streamlit.app"  # Atualize com sua URL do Streamlit Cloud
+    
     return {
         "message": "Books API - Tech Challenge FIAP",
         "version": settings.api_version,
         "docs": f"/api/{settings.api_version}/docs",
-        "health": f"/api/{settings.api_version}/health"
+        "health": f"/api/{settings.api_version}/health",
+        "dashboard": dashboard_url,
+        "note": "Acesse o dashboard em: " + dashboard_url
     }
 
 

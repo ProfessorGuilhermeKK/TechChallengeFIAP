@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: books-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: API_VERSION
+        value: v1
+      - key: API_TITLE
+        value: Books API
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        fromService:
+          type: web
+          name: books-api
+          property: port
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: DATA_PATH
+        value: data/books.csv
+
+

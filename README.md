@@ -286,13 +286,35 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
 
 ## 📦 Deploy
 
-Este repositório mantém apenas os artefatos essenciais para o desafio. Para publicar a API em produção:
+### **Arquivos de Configuração Criados:**
 
-- Provisione uma plataforma de sua preferência (Render, Railway, Fly.io, etc.)
-- Configure as variáveis de ambiente listadas na seção de instalação
-- Execute `uvicorn main:app --host 0.0.0.0 --port 8000`
+- ✅ `Procfile` - Para Heroku
+- ✅ `render.yaml` - Para Render
+- ✅ `fly.toml` - Para Fly.io
+- ✅ `railway.json` - Para Railway
 
-> Dica: utilize `run_api.py` como entrypoint em ambientes que suportem Python puro sem necessidade de arquivos adicionais.
+### **Guia Completo:**
+
+Consulte o arquivo **[GUIA_DEPLOY.md](GUIA_DEPLOY.md)** para instruções detalhadas de deploy em cada plataforma.
+
+### **Deploy Rápido (Render - Recomendado):**
+
+1. Acesse https://render.com
+2. Crie conta e conecte GitHub
+3. Selecione "New Web Service"
+4. Conecte seu repositório
+5. Render detectará `render.yaml` automaticamente
+6. Adicione variáveis de ambiente:
+   - `SECRET_KEY` (gere uma chave aleatória)
+   - `ENVIRONMENT=production`
+7. Clique em "Create Web Service"
+8. Aguarde deploy (2-5 minutos)
+
+**URL da API:** `https://seu-app.onrender.com`
+
+**Documentação:** `https://seu-app.onrender.com/api/v1/docs`
+
+> **Nota:** Após deploy, você pode executar o scraping via API (endpoint protegido) ou fazer upload do arquivo `data/books.csv`.
 
 ## 🤖 Machine Learning
 
@@ -419,6 +441,30 @@ pytest tests/ --cov=api --cov-report=html
 ```
 
 ## 📊 Monitoramento
+
+### Dashboard Streamlit
+
+Execute o dashboard interativo para visualizar métricas e estatísticas:
+
+```bash
+python run_dashboard.py
+```
+
+Ou diretamente com Streamlit:
+
+```bash
+streamlit run dashboard.py
+```
+
+O dashboard estará disponível em: **http://localhost:8501**
+
+**Funcionalidades do Dashboard:**
+- ✅ Métricas principais (total de livros, categorias, preços, ratings)
+- ✅ Visualizações interativas (gráficos de barras, pizza, scatter)
+- ✅ Análise por categoria
+- ✅ Análise de preços e ratings
+- ✅ Tabela de dados com filtros
+- ✅ Download de dados filtrados
 
 ### Logs
 
