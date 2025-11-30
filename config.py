@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     api_version: str = "v1"
     api_title: str = "Books API - Tech Challenge"
     api_description: str = "API pública para consulta de livros extraídos via web scraping"
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"  # Use "0.0.0.0" para produção/deploy
     port: int = 8000
     
     # JWT Authentication

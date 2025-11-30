@@ -189,3 +189,5 @@ if __name__ == "__main__":
         print(f"\n\n❌ Erro inesperado: {e}")
         sys.exit(1)
 
+
+
