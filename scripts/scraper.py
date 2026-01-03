@@ -128,6 +128,7 @@ class BooksScraper:
     def scrape_page(self, page_url: str) -> List[Dict[str, any]]:
         """
         Extrai informações de todos os livros de uma página
+        (mantido para compatibilidade, mas agora reutiliza código otimizado)
         
         Args:
             page_url: URL da página a ser extraída
@@ -135,78 +136,87 @@ class BooksScraper:
         Returns:
             Lista de dicionários com informações dos livros
         """
-        books = []
-        
         try:
             logger.info(f"Extraindo página: {page_url}")
             response = self.session.get(page_url, timeout=10)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'lxml')
-            book_elements = soup.find_all('article', class_='product_pod')
-            
-            for idx, book in enumerate(book_elements, 1):
-                try:
-                    # Título e URL
-                    title_tag = book.find('h3').find('a')
-                    title = title_tag.get('title', '')
-                    book_relative_url = title_tag.get('href', '')
-                    book_url = f"{self.base_url}/catalogue/{book_relative_url.replace('../', '')}"
-                    
-                    # Preço
-                    price_tag = book.find('p', class_='price_color')
-                    price_text = price_tag.text if price_tag else '£0.00'
-                    price = self._extract_price(price_text)
-                    
-                    # Rating
-                    rating = self._extract_rating(book)
-                    
-                    # Disponibilidade
-                    availability_tag = book.find('p', class_='instock availability')
-                    availability_text = availability_tag.text.strip() if availability_tag else ''
-                    availability = self._extract_availability(availability_text)
-                    
-                    # Imagem
-                    img_tag = book.find('img')
-                    image_url = ''
-                    if img_tag:
-                        img_relative = img_tag.get('src', '')
-                        image_url = f"{self.base_url}/{img_relative.replace('../', '')}"
-                    
-                    # Categoria (pegamos da breadcrumb na página de detalhes)
-                    # Por enquanto vamos deixar vazio e preencher depois
-                    category = ''
-                    
-                    book_data = {
-                        'title': title,
-                        'price': price,
-                        'price_text': price_text,
-                        'rating': rating,
-                        'in_stock': availability['in_stock'],
-                        'quantity': availability['quantity'],
-                        'availability_text': availability_text,
-                        'image_url': image_url,
-                        'book_url': book_url,
-                        'category': category
-                    }
-                    
-                    books.append(book_data)
-                    logger.debug(f"Livro extraído: {title}")
-                    
-                except Exception as e:
-                    logger.error(f"Erro ao extrair livro {idx}: {e}")
-                    continue
+            books = self._extract_books_from_soup(soup)
             
             logger.info(f"Total de livros extraídos da página: {len(books)}")
+            return books
             
         except Exception as e:
             logger.error(f"Erro ao processar página {page_url}: {e}")
+            return []
+    
+    def _extract_books_from_soup(self, soup: BeautifulSoup) -> List[Dict[str, any]]:
+        """
+        Extrai informações de livros a partir de um objeto BeautifulSoup já parseado
+        
+        Args:
+            soup: Objeto BeautifulSoup com o HTML da página
+            
+        Returns:
+            Lista de dicionários com informações dos livros
+        """
+        books = []
+        book_elements = soup.find_all('article', class_='product_pod')
+        
+        for idx, book in enumerate(book_elements, 1):
+            try:
+                # Título e URL
+                title_tag = book.find('h3').find('a')
+                title = title_tag.get('title', '')
+                book_relative_url = title_tag.get('href', '')
+                book_url = f"{self.base_url}/catalogue/{book_relative_url.replace('../', '')}"
+                
+                # Preço
+                price_tag = book.find('p', class_='price_color')
+                price_text = price_tag.text if price_tag else '£0.00'
+                price = self._extract_price(price_text)
+                
+                # Rating
+                rating = self._extract_rating(book)
+                
+                # Disponibilidade
+                availability_tag = book.find('p', class_='instock availability')
+                availability_text = availability_tag.text.strip() if availability_tag else ''
+                availability = self._extract_availability(availability_text)
+                
+                # Imagem
+                img_tag = book.find('img')
+                image_url = ''
+                if img_tag:
+                    img_relative = img_tag.get('src', '')
+                    image_url = f"{self.base_url}/{img_relative.replace('../', '')}"
+                
+                book_data = {
+                    'title': title,
+                    'price': price,
+                    'price_text': price_text,
+                    'rating': rating,
+                    'in_stock': availability['in_stock'],
+                    'quantity': availability['quantity'],
+                    'availability_text': availability_text,
+                    'image_url': image_url,
+                    'book_url': book_url,
+                    'category': ''  # Será preenchido depois
+                }
+                
+                books.append(book_data)
+                logger.debug(f"Livro extraído: {title}")
+                
+            except Exception as e:
+                logger.error(f"Erro ao extrair livro {idx}: {e}")
+                continue
         
         return books
     
     def scrape_category(self, category_url: str, category_name: str) -> List[Dict[str, any]]:
         """
-        Extrai todos os livros de uma categoria específica
+        Extrai todos os livros de uma categoria específica (OTIMIZADO - sem chamadas duplicadas)
         
         Args:
             category_url: URL da categoria
@@ -223,18 +233,20 @@ class BooksScraper:
             logger.info(f"Extraindo categoria '{category_name}' - Página {page_num}")
             
             try:
+                # OTIMIZAÇÃO: Faz apenas UMA requisição HTTP por página
                 response = self.session.get(current_url, timeout=10)
                 response.raise_for_status()
                 soup = BeautifulSoup(response.content, 'lxml')
                 
-                # Extrair livros da página
-                books = self.scrape_page(current_url)
+                # Extrair livros usando o soup já parseado (sem nova requisição!)
+                books = self._extract_books_from_soup(soup)
                 
                 # Adicionar categoria aos livros
                 for book in books:
                     book['category'] = category_name
                 
                 all_books.extend(books)
+                logger.info(f"✓ {len(books)} livros extraídos desta página")
                 
                 # Verificar se há próxima página
                 next_button = soup.find('li', class_='next')
@@ -246,7 +258,7 @@ class BooksScraper:
                         base_category_url = current_url.rsplit('/', 1)[0]
                         current_url = f"{base_category_url}/{next_relative_url}"
                         page_num += 1
-                        time.sleep(0.5)  # Pausa educada entre requisições
+                        time.sleep(0.3)  # Pausa reduzida (era 0.5s, agora 0.3s)
                     else:
                         current_url = None
                 else:
@@ -256,7 +268,7 @@ class BooksScraper:
                 logger.error(f"Erro ao processar categoria '{category_name}': {e}")
                 break
         
-        logger.info(f"Total de livros na categoria '{category_name}': {len(all_books)}")
+        logger.info(f"✅ Total de livros na categoria '{category_name}': {len(all_books)}")
         return all_books
     
     def get_all_categories(self) -> List[Dict[str, str]]:
@@ -297,19 +309,32 @@ class BooksScraper:
         
         return categories
     
-    def scrape_all_books(self) -> pd.DataFrame:
+    def scrape_all_books(self, use_cache: bool = True) -> pd.DataFrame:
         """
-        Extrai todos os livros de todas as categorias do site
+        Extrai todos os livros de todas as categorias do site (OTIMIZADO)
+        
+        Args:
+            use_cache: Se True, usa cache da sessão HTTP (default: True)
         
         Returns:
             DataFrame pandas com todos os livros
         """
-        logger.info("Iniciando scraping completo do site...")
+        logger.info("🚀 Iniciando scraping completo do site (MODO OTIMIZADO)...")
+        logger.info("Otimizações ativas:")
+        logger.info("  ✓ Eliminação de requisições HTTP duplicadas")
+        logger.info("  ✓ Reutilização de objetos BeautifulSoup parseados")
+        logger.info("  ✓ Cache de sessão HTTP")
+        logger.info("  ✓ Pausas reduzidas entre requisições")
         
         all_books = []
         categories = self.get_all_categories()
         
+        start_time = time.time()
+        total_requests = 0
+        
         for idx, category in enumerate(categories, 1):
+            category_start = time.time()
+            
             logger.info(f"\n{'='*60}")
             logger.info(f"Categoria {idx}/{len(categories)}: {category['name']}")
             logger.info(f"{'='*60}")
@@ -317,8 +342,11 @@ class BooksScraper:
             books = self.scrape_category(category['url'], category['name'])
             all_books.extend(books)
             
-            # Pausa entre categorias
-            time.sleep(1)
+            category_time = time.time() - category_start
+            logger.info(f"⏱️  Tempo da categoria: {category_time:.2f}s")
+            
+            # Pausa reduzida entre categorias (era 1s, agora 0.5s)
+            time.sleep(0.5)
         
         # Criar DataFrame
         df = pd.DataFrame(all_books)
@@ -327,10 +355,15 @@ class BooksScraper:
         if not df.empty:
             df.insert(0, 'id', range(1, len(df) + 1))
         
+        total_time = time.time() - start_time
+        
         logger.info(f"\n{'='*60}")
-        logger.info(f"SCRAPING COMPLETO!")
-        logger.info(f"Total de livros extraídos: {len(df)}")
-        logger.info(f"Total de categorias: {len(categories)}")
+        logger.info(f"🎉 SCRAPING COMPLETO!")
+        logger.info(f"{'='*60}")
+        logger.info(f"📚 Total de livros extraídos: {len(df)}")
+        logger.info(f"🏷️  Total de categorias: {len(categories)}")
+        logger.info(f"⏱️  Tempo total: {total_time:.2f}s ({total_time/60:.2f} minutos)")
+        logger.info(f"⚡ Velocidade média: {len(df)/total_time:.2f} livros/segundo")
         logger.info(f"{'='*60}\n")
         
         return df

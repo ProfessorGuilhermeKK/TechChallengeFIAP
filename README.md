@@ -103,15 +103,11 @@ TECH-CHALLENGE/
 ├── run_api.py              # Script para subir a API
 ├── run_dashboard.py        # Script para subir o dashboard
 ├── run_scraping.py         # Script para executar o scraping
-├── demo_jwt.py             # Demonstração de JWT
-├── test_auth.py            # Testes de autenticação
-├── API_EXAMPLES.md         # Exemplos de chamadas
 ├── ARCHITECTURE.md         # Documentação arquitetural
 ├── Procfile                # Configuração para Heroku
 ├── render.yaml             # Configuração para Render
 ├── fly.toml                # Configuração para Fly.io
-├── railway.json            # Configuração para Railway
-└── vercel.json             # Configuração para Vercel
+└── railway.json            # Configuração para Railway
 ```
 
 ## 🚀 Instalação
@@ -306,10 +302,6 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
 - ✅ `render.yaml` - Para Render
 - ✅ `fly.toml` - Para Fly.io
 - ✅ `railway.json` - Para Railway
-
-### **Guia Completo:**
-
-Consulte o arquivo **[GUIA_DEPLOY.md](GUIA_DEPLOY.md)** para instruções detalhadas de deploy em cada plataforma.
 
 ### **Deploy Rápido (Render - Recomendado):**
 

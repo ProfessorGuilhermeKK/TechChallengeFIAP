@@ -1,6 +1,2 @@
-# This file ensures the logs directory is tracked by git
-
-
-
-
-
+# Esta pasta é usada para armazenar logs da aplicação
+# Os arquivos de log são gerados automaticamente e não devem ser versionados
