@@ -3,9 +3,9 @@ Endpoint de health check
 """
 from fastapi import APIRouter
 from datetime import datetime
-from api.models import HealthCheck
-from api.database import get_database
-from config import get_settings
+from api.domain.common.health_schemas import HealthCheck
+from api.infra.storage.database import get_database
+from api.core.config import get_settings
 import logging
 
 logger = logging.getLogger(__name__)

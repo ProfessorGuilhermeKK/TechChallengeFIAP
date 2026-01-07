@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 import logging
-from typing import List, Dict, Optional
+from typing import List, Dict
 from pathlib import Path
 import re
 

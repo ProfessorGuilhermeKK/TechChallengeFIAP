@@ -5,7 +5,6 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, List, Dict
 import logging
-from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +46,12 @@ class BooksDatabase:
         if self._df is None or self._df.empty:
             self._load_data()
         return self._df
+    
+    @property
+    def total_books(self) -> int:
+        if not self.is_available():
+            return 0
+        return len(self._df)
     
     def is_available(self) -> bool:
         """Verifica se os dados estão disponíveis"""

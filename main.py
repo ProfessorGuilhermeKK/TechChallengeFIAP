@@ -9,12 +9,13 @@ import logging
 import time
 from pathlib import Path
 
-from config import get_settings
+from api.core.config import get_settings
+from api.core.exception_handlers import register_exception_handlers
 from api.routers import books, categories, stats, health, auth, ml, scraping
-from api.database import get_database
+from api.infra.storage.database import get_database
 
 # Configurar logging
-from utils.logger import setup_logging
+from api.core.logger import setup_logging
 setup_logging()
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,8 @@ app = FastAPI(
     openapi_url=f"/api/{settings.api_version}/openapi.json",
 )
 
+register_exception_handlers(app)
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -90,34 +93,6 @@ async def log_requests(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     
     return response
-
-
-# Exception handlers
-@app.exception_handler(404)
-async def not_found_handler(request: Request, exc):
-    """Handler para 404"""
-    return JSONResponse(
-        status_code=404,
-        content={
-            "error": "Not Found",
-            "message": "The requested resource was not found",
-            "path": str(request.url.path)
-        }
-    )
-
-
-@app.exception_handler(500)
-async def internal_error_handler(request: Request, exc):
-    """Handler para 500"""
-    logger.error(f"Internal server error: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "Internal Server Error",
-            "message": "An internal server error occurred",
-            "detail": str(exc) if settings.environment == "development" else None
-        }
-    )
 
 
 # Rota raiz

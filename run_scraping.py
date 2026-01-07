@@ -2,7 +2,7 @@
 """
 Script para executar o web scraping
 """
-from scripts.scraper import main
+from api.infra.scraping.scraper import main
 
 if __name__ == "__main__":
     print("=" * 60)

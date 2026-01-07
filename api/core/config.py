@@ -3,7 +3,6 @@ Configurações centralizadas da aplicação
 """
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-from typing import Optional
 
 
 class Settings(BaseSettings):
