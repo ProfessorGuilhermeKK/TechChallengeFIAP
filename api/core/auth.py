@@ -6,9 +6,10 @@ from typing import Optional
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from config import get_settings
-from api.models import TokenData, User, UserInDB
+from api.core.config import get_settings
 import logging
+
+from api.domain.auth.schemas import TokenData, User, UserInDB
 
 # Tentar importar passlib, mas usar bcrypt diretamente como fallback
 try:

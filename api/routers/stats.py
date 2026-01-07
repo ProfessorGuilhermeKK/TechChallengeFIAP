@@ -1,11 +1,13 @@
 """
 Endpoints de estatísticas e insights
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
 from typing import List
-from api.models import StatsOverview, CategoryStats
-from api.database import get_database
 import logging
+
+from api.core.deps import get_stats_service
+from api.domain.stats.schemas import CategoryStats, StatsOverview
+from api.domain.stats.service import StatsService
 
 logger = logging.getLogger(__name__)
 
@@ -22,18 +24,11 @@ router = APIRouter(
     summary="Estatísticas gerais",
     description="Retorna estatísticas gerais da coleção de livros"
 )
-async def get_stats_overview():
+async def get_stats_overview(
+    service: StatsService = Depends(get_stats_service),
+):
     """Retorna estatísticas gerais da coleção"""
-    db = get_database()
-    
-    if not db.is_available():
-        raise HTTPException(
-            status_code=503,
-            detail="Data not available. Please run scraping first."
-        )
-    
-    stats = db.get_stats_overview()
-    return stats
+    return service.get_overview()
 
 
 @router.get(
@@ -42,20 +37,8 @@ async def get_stats_overview():
     summary="Estatísticas por categoria",
     description="Retorna estatísticas detalhadas de cada categoria"
 )
-async def get_category_stats():
+async def get_category_stats(
+    service: StatsService = Depends(get_stats_service),
+):
     """Retorna estatísticas detalhadas por categoria"""
-    db = get_database()
-    
-    if not db.is_available():
-        raise HTTPException(
-            status_code=503,
-            detail="Data not available. Please run scraping first."
-        )
-    
-    stats = db.get_category_stats()
-    return stats
-
-
-
-
-
+    return service.get_category_stats()

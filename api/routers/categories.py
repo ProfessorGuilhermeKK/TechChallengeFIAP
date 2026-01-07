@@ -1,10 +1,12 @@
 """
 Endpoints relacionados a categorias
 """
-from fastapi import APIRouter, HTTPException
-from api.models import CategoryList
-from api.database import get_database
+from fastapi import APIRouter, Depends
 import logging
+
+from api.core.deps import get_categories_service
+from api.domain.categories.schemas import CategoryList
+from api.domain.categories.service import CategoriesService
 
 logger = logging.getLogger(__name__)
 
@@ -21,27 +23,7 @@ router = APIRouter(
     summary="Lista todas as categorias",
     description="Retorna lista de todas as categorias de livros disponíveis com contagem"
 )
-async def get_all_categories():
-    """Lista todas as categorias de livros"""
-    db = get_database()
-    
-    if not db.is_available():
-        raise HTTPException(
-            status_code=503,
-            detail="Data not available. Please run scraping first."
-        )
-    
-    categories = db.get_all_categories()
-    
-    return {
-        "total": len(categories),
-        "categories": [
-            {"name": cat["category"], "total_books": cat["total_books"]}
-            for cat in categories
-        ]
-    }
-
-
-
-
-
+async def get_all_categories(
+    service: CategoriesService = Depends(get_categories_service),
+):
+    return service.list_categories()

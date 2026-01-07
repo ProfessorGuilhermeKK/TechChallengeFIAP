@@ -13,7 +13,8 @@ from pathlib import Path
 # Adicionar diretório raiz ao path
 sys.path.append(str(Path(__file__).parent))
 
-from api.database import get_database
+from api.core.auth import authenticate_user
+from api.infra.storage.database import get_database
 
 # Configuração da página (deve vir primeiro)
 st.set_page_config(
