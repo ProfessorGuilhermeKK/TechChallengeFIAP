@@ -1,6 +1,7 @@
 """
 Aplicação principal da API de Livros
 """
+import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,13 +10,15 @@ import logging
 import time
 from pathlib import Path
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from api.core.config import get_settings
 from api.core.exception_handlers import register_exception_handlers
 from api.routers import books, categories, stats, health, auth, ml, scraping
 from api.infra.storage.database import get_database
 
 # Configurar logging
-from api.core.logger import setup_logging
+from api.core.logger import setup_logging, request_id_var, user_var
 setup_logging()
 
 logger = logging.getLogger(__name__)
@@ -60,6 +63,12 @@ app = FastAPI(
 
 register_exception_handlers(app)
 
+Instrumentator().instrument(app).expose(
+    app,
+    endpoint="/metrics",
+    include_in_schema=False,
+)
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -73,25 +82,48 @@ app.add_middleware(
 # Middleware para logging de requisições
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    """Log de todas as requisições"""
-    start_time = time.time()
-    
-    # Processar requisição
-    response = await call_next(request)
-    
-    # Calcular tempo de processamento
-    process_time = time.time() - start_time
-    
-    # Log
-    logger.info(
-        f"{request.method} {request.url.path} "
-        f"- Status: {response.status_code} "
-        f"- Time: {process_time:.3f}s"
-    )
-    
-    # Adicionar header com tempo de processamento
-    response.headers["X-Process-Time"] = str(process_time)
-    
+    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    request_id_token = request_id_var.set(request_id)
+    user_token = user_var.set(None)
+
+    start = time.perf_counter()
+
+    try:
+        response = await call_next(request)
+    except Exception:
+        duration_ms = (time.perf_counter() - start) * 1000
+
+        logger.exception(
+            "request_failed",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "duration_ms": round(duration_ms, 2),
+            },
+        )
+        raise
+    finally:
+        duration_ms = (time.perf_counter() - start) * 1000
+
+        logger.info(
+            "request_completed",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "duration_ms": round(duration_ms, 2),
+                "user": user_var.get(),
+            },
+        )
+        
+        user_var.reset(user_token)
+        request_id_var.reset(request_id_token)
+
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Process-Time"] = f"{duration_ms / 1000:.3f}"
+
     return response
 
 

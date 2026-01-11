@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from api.core.config import get_settings
+from api.core.logger import user_var
 import logging
 import uuid
 
@@ -238,6 +239,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     if user is None:
         raise credentials_exception
     
+    user = get_user(username=token_data.username)
+    if user is None:
+        raise credentials_exception
+
+    user_var.set(user.username)
+
     return user
 
 

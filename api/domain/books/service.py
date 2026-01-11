@@ -63,7 +63,8 @@ class BooksService:
         page_size: int,
     ) -> Dict[str, Any]:
         self._ensure_available()
-        self._valid_min_max_price(min_price, max_price)
+        if min_price and max_price:
+            self._valid_min_max_price(min_price, max_price)
 
         skip = (page - 1) * page_size
 
