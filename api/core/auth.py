@@ -7,7 +7,9 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from api.core.config import get_settings
+from api.core.logger import user_var
 import logging
+import uuid
 
 from api.domain.auth.schemas import TokenData, User, UserInDB
 
@@ -169,10 +171,36 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
     
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, 
+                      "type": "access",
+                      "iat": datetime.utcnow(),
+                      "jti": str(uuid.uuid4()),
+                      })
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     
     return encoded_jwt
+
+
+def decode_token(token: str) -> dict:
+    return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+
+
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+
+    expire = datetime.utcnow() + (
+        expires_delta if expires_delta else timedelta(days=settings.refresh_token_expire_days)
+    )
+
+    # claims adicionais úteis
+    to_encode.update({
+        "exp": expire,
+        "iat": datetime.utcnow(),
+        "jti": str(uuid.uuid4()),
+        "type": "refresh",
+    })
+
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
@@ -195,7 +223,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     )
     
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = decode_token(token)
+        token_type = payload.get("type")
+        if token_type != "access":
+            raise credentials_exception
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -208,6 +239,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     if user is None:
         raise credentials_exception
     
+    user = get_user(username=token_data.username)
+    if user is None:
+        raise credentials_exception
+
+    user_var.set(user.username)
+
     return user
 
 

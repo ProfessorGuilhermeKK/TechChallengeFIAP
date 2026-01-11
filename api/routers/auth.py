@@ -4,8 +4,7 @@ Endpoints de autenticação JWT
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from api.core.auth import get_current_active_user
-from api.domain.auth.schemas import Token, User
+from api.domain.auth.schemas import RefreshRequest, Token
 from api.domain.auth.service import AuthService
 
 router = APIRouter(
@@ -34,7 +33,7 @@ async def login(
     description="Renova o token JWT do usuário autenticado"
 )
 async def refresh_token(
-    current_user: User = Depends(get_current_active_user),
+    body: RefreshRequest,
     service: AuthService = Depends(AuthService),
 ):
-    return service.refresh(current_user)
+    return service.refresh(body.refresh_token)

@@ -3,9 +3,8 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Dict, Any
 
-from api.core.auth import authenticate_user, create_access_token
+from api.core.auth import authenticate_user, create_access_token, create_refresh_token, decode_token, get_user
 from api.core.config import get_settings
-from api.domain.auth.schemas import User
 from api.domain.common.exceptions import InvalidCredentialsError
 
 settings = get_settings()
@@ -22,23 +21,48 @@ class AuthService:
             data={"sub": user.username},
             expires_delta=access_token_expires,
         )
+        
+        refresh_token = create_refresh_token(data={"sub": user.username})
 
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer",
             "expires_in": settings.access_token_expire_minutes,
+            "refresh_expires_in": settings.refresh_token_expire_days * 24 * 60,
         }
 
-    def refresh(self, current_user: User) -> Dict[str, Any]:
-        # Mantém o comportamento atual: refresh só funciona se o user estiver autenticado. :contentReference[oaicite:1]{index=1}
+    def refresh(self, refresh_token: str) -> Dict[str, Any]:
+        try:
+            payload = decode_token(refresh_token)
+        except Exception:
+            raise InvalidCredentialsError("Invalid refresh token")
+
+        if payload.get("type") != "refresh":
+            raise InvalidCredentialsError("Invalid token type")
+
+        username = payload.get("sub")
+        if not username:
+            raise InvalidCredentialsError("Invalid refresh token payload")
+
+        user = get_user(username)
+        if not user or user.disabled:
+            raise InvalidCredentialsError("User not found or inactive")
+
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-        access_token = create_access_token(
-            data={"sub": current_user.username},
+        new_access_token = create_access_token(
+            data={"sub": username},
             expires_delta=access_token_expires,
         )
 
+        # opcional: rotacionar refresh token (mesmo stateless)
+        new_refresh_token = create_refresh_token(data={"sub": username})
+
         return {
-            "access_token": access_token,
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
             "token_type": "bearer",
             "expires_in": settings.access_token_expire_minutes,
+            "refresh_expires_in": settings.refresh_token_expire_days * 24 * 60,
         }
+

@@ -22,6 +22,12 @@ class BooksService:
     def _ensure_available(self) -> None:
         if not self.db.is_available():
             raise DataNotAvailableError("Data not available. Please run scraping first.")
+        
+
+    def _valid_min_max_price(self, min_price: float, max_price: float) -> None:
+        if min_price > max_price:
+            raise InvalidInputError("Minimum price cannot be greater than maximum price")
+
 
     def get_all_books(self, page: int, page_size: int) -> Dict[str, Any]:
         self._ensure_available()
@@ -57,6 +63,8 @@ class BooksService:
         page_size: int,
     ) -> Dict[str, Any]:
         self._ensure_available()
+        if min_price and max_price:
+            self._valid_min_max_price(min_price, max_price)
 
         skip = (page - 1) * page_size
 
@@ -100,8 +108,7 @@ class BooksService:
     ) -> Dict[str, Any]:
         self._ensure_available()
 
-        if min_price > max_price:
-            raise InvalidInputError("Minimum price cannot be greater than maximum price")
+        self._valid_min_max_price(min_price, max_price)
 
         skip = (page - 1) * page_size
         books = self.db.get_books_by_price_range(

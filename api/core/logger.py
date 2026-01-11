@@ -1,12 +1,16 @@
 """
 Configuração de logging estruturado
 """
+import contextvars
 import logging
 import sys
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
 from datetime import datetime
 
+
+request_id_var = contextvars.ContextVar("request_id", default=None)
+user_var = contextvars.ContextVar("user", default=None)
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     """Formatter JSON customizado"""
@@ -21,6 +25,13 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record['level'] = log_record['level'].upper()
         else:
             log_record['level'] = record.levelname
+    
+
+class ContextFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = request_id_var.get()
+        record.user = user_var.get()
+        return True
 
 
 def setup_logging(log_level: str = "INFO"):
@@ -39,27 +50,29 @@ def setup_logging(log_level: str = "INFO"):
     
     # Root logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level.upper()))
+    root_logger.setLevel(logging.DEBUG)
     
     # Remover handlers existentes
     root_logger.handlers.clear()
     
     # Console handler (formato simples)
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(getattr(logging, log_level.upper()))
     console_formatter = logging.Formatter(log_format)
     console_handler.setFormatter(console_formatter)
+    console_handler.addFilter(ContextFilter())
     root_logger.addHandler(console_handler)
     
     # File handler (formato JSON)
     file_handler = logging.FileHandler(
-        log_dir / f'api_{datetime.now().strftime("%Y%m%d")}.log'
+        log_dir / f'api_{datetime.now().strftime("%Y%m%d")}.log', 
+        encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
-    json_formatter = CustomJsonFormatter(
-        '%(timestamp)s %(level)s %(name)s %(message)s'
-    )
+    json_formatter = CustomJsonFormatter("%(timestamp)s %(level)s %(name)s %(message)s %(request_id)s %(user)s")
+
     file_handler.setFormatter(json_formatter)
+    file_handler.addFilter(ContextFilter())
     root_logger.addHandler(file_handler)
     
     # Configurar loggers de terceiros
