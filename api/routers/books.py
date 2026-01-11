@@ -33,7 +33,7 @@ async def get_all_books(
 
 
 @router.get(
-    "/{book_id}",
+    "/{book_id:int}",
     response_model=Book,
     summary="Obtém detalhes de um livro",
     description="Retorna informações detalhadas de um livro específico pelo ID",
