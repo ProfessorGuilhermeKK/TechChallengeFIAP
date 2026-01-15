@@ -29,7 +29,6 @@ Este projeto foi desenvolvido como parte do Tech Challenge da FIAP, focado em cr
 - [Deploy](#-deploy)
 - [Machine Learning](#-machine-learning)
 - [Exemplos](#-exemplos)
-- [Testes](#-testes)
 - [Monitoramento](#-monitoramento)
 - [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
 - [Roadmap Futuro](#-roadmap-futuro)
@@ -84,28 +83,29 @@ TECH-CHALLENGE/
 │   │   ├── auth.py          # Autenticação JWT
 │   │   ├── ml.py            # Endpoints ML-Ready
 │   │   └── scraping.py      # Trigger de scraping
-│   ├── models.py            # Modelos Pydantic
-│   ├── database.py          # Gerenciamento de dados
-│   └── auth.py              # Sistema de autenticação
-├── scripts/                 # Scripts de automação
-│   └── scraper.py          # Web scraper
-├── utils/                   # Utilitários
-│   └── logger.py           # Sistema de logging
+│   ├── domain/              # Lógica de negócio
+│   │   ├── auth/           # Autenticação
+│   │   ├── books/          # Livros
+│   │   ├── categories/     # Categorias
+│   │   ├── ml/             # Machine Learning
+│   │   ├── scraping/       # Web Scraping
+│   │   └── stats/          # Estatísticas
+│   ├── infra/              # Infraestrutura
+│   │   ├── scraping/       # Web scraper
+│   │   └── storage/        # Gerenciamento de dados
+│   └── core/               # Configurações e autenticação
 ├── data/                    # Armazenamento de dados
-│   ├── books.csv           # Dados extraídos
-│   └── .gitkeep            # Mantém a pasta versionada
-├── logs/                    # Logs da aplicação (.gitkeep mantém a pasta)
-├── tests/                   # Testes automatizados
+│   └── books.csv           # Dados extraídos
+├── logs/                    # Logs da aplicação
 ├── main.py                  # Aplicação principal
 ├── dashboard.py            # Dashboard Streamlit
-├── config.py               # Configurações
 ├── requirements.txt        # Dependências Python
 ├── run_api.py              # Script para subir a API
 ├── run_dashboard.py        # Script para subir o dashboard
 ├── run_scraping.py         # Script para executar o scraping
 ├── ARCHITECTURE.md         # Documentação arquitetural
 ├── Procfile                # Configuração para Heroku
-├── render.yaml             # Configuração para Render
+├── render.yaml             # Configuração para Render (RECOMENDADO)
 ├── fly.toml                # Configuração para Fly.io
 └── railway.json            # Configuração para Railway
 ```
@@ -147,16 +147,27 @@ pip install -r requirements.txt
 
 4. **Configure as variáveis de ambiente**
 
-Crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
 ```env
 API_VERSION=v1
 API_TITLE=Books API
 HOST=0.0.0.0
 PORT=8000
+
+# ⚠️ IMPORTANTE: Altere em produção!
 SECRET_KEY=your-secret-key-change-in-production
 ENVIRONMENT=development
+
+# Usuários de autenticação (formato: username:password:fullname:email)
+# ⚠️ IMPORTANTE: Altere as senhas padrão em produção!
+AUTH_USERS=admin:secret:Admin User:admin@booksapi.com,testuser:secret:Test User:test@booksapi.com
 ```
+
+> **Dica de Segurança:** Gere uma chave secreta forte:
+> ```bash
+> python -c "import secrets; print(secrets.token_urlsafe(32))"
+> ```
 
 ## 💻 Uso
 
@@ -196,6 +207,16 @@ Acesse a documentação interativa:
 
 - **Swagger UI**: http://localhost:8000/api/v1/docs
 - **ReDoc**: http://localhost:8000/api/v1/redoc
+
+## 🔐 Variáveis de Ambiente
+
+Para documentação completa sobre variáveis de ambiente, consulte [ENV_VARS.md](ENV_VARS.md).
+
+**Variáveis principais:**
+- `SECRET_KEY` - Chave secreta JWT (obrigatório alterar em produção)
+- `AUTH_USERS` - Lista de usuários autorizados (formato: `user:pass:name:email`)
+- `ENVIRONMENT` - Ambiente de execução (`development`, `production`)
+- `DATA_PATH` - Caminho do arquivo CSV de dados
 
 ## 📡 Endpoints da API
 
@@ -242,12 +263,14 @@ Acesse a documentação interativa:
 
 ### Endpoints ML-Ready (Bônus)
 
-| Método | Endpoint                     | Descrição                    |
-| ------- | ---------------------------- | ------------------------------ |
-| GET     | `/api/v1/ml/features`      | Features formatadas para ML    |
-| GET     | `/api/v1/ml/training-data` | Dataset para treinamento       |
-| POST    | `/api/v1/ml/predictions`   | Submeter predições           |
-| GET     | `/api/v1/ml/stats`         | Estatísticas para análise ML |
+| Método | Endpoint                     | Descrição                    | Status |
+| ------- | ---------------------------- | ------------------------------ | -------- |
+| GET     | `/api/v1/ml/features`      | Features formatadas para ML    | ✅ Implementado |
+| GET     | `/api/v1/ml/training-data` | Dataset para treinamento       | ✅ Implementado |
+| POST    | `/api/v1/ml/predictions`   | Submeter predições           | 🔄 Mockado* |
+| GET     | `/api/v1/ml/stats`         | Estatísticas para análise ML | ✅ Implementado |
+
+**\* Nota sobre /predictions:** Este endpoint está implementado com dados mockados para demonstração. Ele recebe predições e as retorna como confirmação. A integração real com modelos de ML será implementada em fases futuras do projeto.
 
 ### Endpoints Administrativos (Protegidos)
 
@@ -261,6 +284,8 @@ Acesse a documentação interativa:
 A API utiliza JWT (JSON Web Tokens) para autenticação.
 
 ### Credenciais de Teste
+
+> ⚠️ **Importante:** As credenciais padrão devem ser configuradas via variáveis de ambiente em produção.
 
 ```
 Usuário: admin
@@ -310,9 +335,11 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
 3. Selecione "New Web Service"
 4. Conecte seu repositório
 5. Render detectará `render.yaml` automaticamente
-6. Adicione variáveis de ambiente:
-   - `SECRET_KEY` (gere uma chave aleatória)
+6. **Configure as variáveis de ambiente obrigatórias:**
+   - `SECRET_KEY` - Gere uma chave forte: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
    - `ENVIRONMENT=production`
+   - `AUTH_USERS` - Defina seus usuários (formato: `user1:senha1:Nome1:email1@example.com,user2:senha2:Nome2:email2@example.com`)
+   - `DATA_PATH=data/books.csv` (já configurado no render.yaml)
 7. Clique em "Create Web Service"
 8. Aguarde deploy (2-5 minutos)
 
@@ -325,6 +352,11 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
 ## 🤖 Machine Learning
 
 A API foi projetada pensando em consumo por modelos de ML.
+
+> **ℹ️ Status de Implementação:**
+> - ✅ **Endpoints de Features e Training Data:** Totalmente implementados e funcionais
+> - 🔄 **Endpoint de Predictions:** Implementado com dados mockados para demonstração
+> - 📋 **Próximos Passos:** Integração com modelos de ML reais (recomendação, classificação, previsão de preços)
 
 ### Features Disponíveis
 
@@ -357,9 +389,12 @@ model = RandomForestRegressor()
 model.fit(X, y)
 ```
 
-### Submeter Predições
+### Submeter Predições (Mockado)
+
+> **⚠️ Importante:** Este endpoint atualmente retorna os dados mockados enviados como confirmação. A integração com modelos de ML reais será implementada nas próximas fases do projeto.
 
 ```python
+# Exemplo de uso do endpoint /predictions
 predictions = [
     {
         "book_id": 1,
@@ -376,7 +411,16 @@ response = requests.post(
     json=predictions,
     headers=headers
 )
+
+# Response (mockado - retorna o que foi enviado)
+print(response.json())  # Retorna a lista de predições enviada
 ```
+
+**Implementação Futura:**
+- Integração com modelos de recomendação (Collaborative Filtering, Content-Based)
+- Pipeline de predição de ratings
+- Sistema de cache para predições frequentes
+- Versionamento de modelos
 
 ## 📝 Exemplos de Uso
 
@@ -430,20 +474,6 @@ Resposta:
 
 ```bash
 curl -X GET "http://localhost:8000/api/v1/books/top-rated/list?limit=5"
-```
-
-## 🧪 Testes
-
-Execute os testes automatizados:
-
-```bash
-pytest tests/ -v
-```
-
-Com cobertura:
-
-```bash
-pytest tests/ --cov=api --cov-report=html
 ```
 
 ## 📊 Monitoramento

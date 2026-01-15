@@ -58,23 +58,98 @@ oauth2_scheme = OAuth2PasswordBearer(
     scheme_name="OAuth2PasswordBearer"
 )
 
-# Banco de dados fake de usuários (em produção, usar banco de dados real)
-fake_users_db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "Admin User",
-        "email": "admin@booksapi.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
-        "disabled": False,
-    },
-    "testuser": {
-        "username": "testuser",
-        "full_name": "Test User",
-        "email": "test@booksapi.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
-        "disabled": False,
+
+def _parse_users_from_env() -> dict:
+    """
+    Parse usuários da variável de ambiente AUTH_USERS.
+    
+    Formato esperado: username:password:fullname:email,username2:password2:fullname2:email2
+    
+    Exemplo:
+        admin:secret:Admin User:admin@example.com,user:pass:User Name:user@example.com
+    
+    Returns:
+        Dicionário com usuários no formato do fake_users_db
+    """
+    users_db = {}
+    
+    try:
+        users_string = settings.auth_users
+        if not users_string:
+            logger.warning("AUTH_USERS não configurado, usando usuários padrão")
+            return _get_default_users()
+        
+        # Parse cada usuário
+        for user_entry in users_string.split(','):
+            user_entry = user_entry.strip()
+            if not user_entry:
+                continue
+            
+            try:
+                parts = user_entry.split(':')
+                if len(parts) < 4:
+                    logger.warning(f"Formato inválido para usuário: {user_entry}")
+                    continue
+                
+                username, password, full_name, email = parts[0], parts[1], parts[2], parts[3]
+                
+                # Gerar hash da senha
+                hashed_password = get_password_hash(password)
+                
+                users_db[username] = {
+                    "username": username,
+                    "full_name": full_name,
+                    "email": email,
+                    "hashed_password": hashed_password,
+                    "disabled": False,
+                }
+                
+                logger.info(f"Usuário '{username}' carregado das variáveis de ambiente")
+                
+            except Exception as e:
+                logger.error(f"Erro ao processar usuário '{user_entry}': {e}")
+                continue
+        
+        if not users_db:
+            logger.warning("Nenhum usuário válido encontrado, usando usuários padrão")
+            return _get_default_users()
+        
+        return users_db
+        
+    except Exception as e:
+        logger.error(f"Erro ao carregar usuários das variáveis de ambiente: {e}")
+        return _get_default_users()
+
+
+def _get_default_users() -> dict:
+    """
+    Retorna usuários padrão para fallback.
+    
+    ⚠️ ATENÇÃO: Estes usuários são apenas para desenvolvimento/testes.
+    Em produção, sempre configure AUTH_USERS nas variáveis de ambiente.
+    """
+    logger.warning("⚠️ Usando usuários padrão - NÃO RECOMENDADO EM PRODUÇÃO!")
+    return {
+        "admin": {
+            "username": "admin",
+            "full_name": "Admin User",
+            "email": "admin@booksapi.com",
+            "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
+            "disabled": False,
+        },
+        "testuser": {
+            "username": "testuser",
+            "full_name": "Test User",
+            "email": "test@booksapi.com",
+            "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
+            "disabled": False,
+        }
     }
-}
+
+
+# Carregar usuários das variáveis de ambiente
+# Em produção, configure AUTH_USERS com os usuários desejados
+fake_users_db = _parse_users_from_env()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

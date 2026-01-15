@@ -22,6 +22,10 @@ services:
         value: production
       - key: DATA_PATH
         value: data/books.csv
+      - key: AUTH_USERS
+        sync: false  # Configure manualmente no dashboard do Render
+        # Formato: username:password:fullname:email,username2:password2:fullname2:email2
+        # Exemplo: admin:senhaSegura123:Admin User:admin@example.com
 
 
 

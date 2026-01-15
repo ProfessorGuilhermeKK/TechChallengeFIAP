@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
     
+    # Authentication Users
+    # Formato: username:password:fullname:email,username2:password2:fullname2:email2
+    # Exemplo: admin:secret:Admin User:admin@example.com,user:pass:User Name:user@example.com
+    auth_users: str = "admin:secret:Admin User:admin@booksapi.com,testuser:secret:Test User:test@booksapi.com"
+    
     # Data Configuration
     data_path: str = "data/books.csv"
     scraping_url: str = "https://books.toscrape.com"

@@ -47,8 +47,22 @@ async def get_training_data(
 @router.post(
     "/predictions",
     response_model=List[MLPrediction],
-    summary="Receber predições",
-    description="Endpoint para receber predições de modelos ML (protegido por autenticação)",
+    summary="Receber predições (MOCKADO)",
+    description="""
+    ⚠️ **ENDPOINT MOCKADO** - Demonstração de funcionalidade futura
+    
+    Este endpoint está implementado com dados mockados para demonstração da API.
+    Atualmente, ele recebe predições de modelos de ML e as retorna como confirmação.
+    
+    **Implementação Futura:**
+    - Armazenamento de predições em banco de dados
+    - Validação de predições contra dados reais
+    - Métricas de performance de modelos
+    - Versionamento de modelos
+    - Sistema de cache
+    
+    **Autenticação:** Requerida (Bearer Token)
+    """,
     dependencies=[Depends(get_current_active_user)]
 )
 async def submit_predictions(
@@ -65,6 +79,12 @@ async def submit_predictions(
     ),
     service: MLService = Depends(get_ml_service),
 ):
+    """
+    Endpoint mockado para receber predições de modelos de ML.
+    
+    Atualmente retorna as predições recebidas como confirmação.
+    A integração real com modelos será implementada nas próximas fases.
+    """
     return service.submit_predictions(predictions)
 
 

@@ -27,10 +27,6 @@ python-json-logger
 # CORS
 python-dotenv
 
-# Testing (opcional)
-pytest
-httpx
-
 # Dashboard
 streamlit
 plotly
