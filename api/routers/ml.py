@@ -1,6 +1,3 @@
-"""
-Endpoints para Machine Learning
-"""
 from fastapi import APIRouter, Depends, Body
 from typing import List
 
@@ -79,12 +76,6 @@ async def submit_predictions(
     ),
     service: MLService = Depends(get_ml_service),
 ):
-    """
-    Endpoint mockado para receber predições de modelos de ML.
-    
-    Atualmente retorna as predições recebidas como confirmação.
-    A integração real com modelos será implementada nas próximas fases.
-    """
     return service.submit_predictions(predictions)
 
 

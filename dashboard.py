@@ -1,6 +1,3 @@
-"""
-Dashboard Streamlit para Monitoramento da Books API
-"""
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -10,13 +7,11 @@ from datetime import datetime
 import sys
 from pathlib import Path
 
-# Adicionar diretório raiz ao path
 sys.path.append(str(Path(__file__).parent))
 
 from api.core.auth import authenticate_user
 from api.infra.storage.database import get_database
 
-# Configuração da página (deve vir primeiro)
 st.set_page_config(
     page_title="Books API Dashboard",
     page_icon="📚",
@@ -24,10 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Sistema de autenticação simplificado para dashboard (sem bcrypt)
 def check_password():
-    """Verifica se o usuário está autenticado"""
-    # Credenciais válidas (simplificado para dashboard)
     VALID_CREDENTIALS = {
         "admin": "secret",
         "testuser": "secret"
@@ -52,7 +44,6 @@ def check_password():
                 submitted = st.form_submit_button("🚀 Entrar", width='stretch')
                 
                 if submitted:
-                    # Verificação simplificada (sem bcrypt para evitar problemas)
                     if username in VALID_CREDENTIALS and password == VALID_CREDENTIALS[username]:
                         st.session_state.authenticated = True
                         st.session_state.username = username
@@ -67,12 +58,9 @@ def check_password():
     
     return True
 
-# Verificar autenticação
 check_password()
 
-# Sistema de autenticação
 def check_password():
-    """Verifica se o usuário está autenticado"""
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
@@ -107,10 +95,8 @@ def check_password():
     
     return True
 
-# Verificar autenticação
 check_password()
 
-# CSS customizado
 st.markdown("""
     <style>
     .main-header {
@@ -140,7 +126,6 @@ st.markdown("""
     [data-testid="stMetricDelta"] {
         font-size: 0.9rem;
     }
-    /* Container dos cards - cores sólidas com contorno */
     div[data-testid="stMetricContainer"] {
         background-color: #f8f9fa !important;
         padding: 1.5rem !important;
@@ -149,7 +134,6 @@ st.markdown("""
         border: 2px solid #dee2e6 !important;
         margin: 0.5rem 0 !important;
     }
-    /* Cores diferentes para cada card na primeira linha */
     div[data-testid="column"]:nth-of-type(1) div[data-testid="stMetricContainer"] {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         border: 2px solid #5a67d8 !important;
@@ -166,27 +150,22 @@ st.markdown("""
         background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
         border: 2px solid #00c853 !important;
     }
-    /* Texto branco nos cards coloridos */
     div[data-testid="stMetricContainer"] [data-testid="stMetricValue"],
     div[data-testid="stMetricContainer"] [data-testid="stMetricLabel"],
     div[data-testid="stMetricContainer"] [data-testid="stMetricDelta"] {
         color: white !important;
     }
-    /* Garantir contraste */
     [data-testid="stMetricValue"] {
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Título principal
 st.markdown('<h1 class="main-header">📚 Books API Dashboard</h1>', unsafe_allow_html=True)
 st.markdown("---")
 
-# Carregar dados
 @st.cache_data
 def load_data():
-    """Carrega dados do banco"""
     try:
         db = get_database()
         if db.is_available():
@@ -197,18 +176,14 @@ def load_data():
         st.error(f"Erro ao carregar dados: {e}")
         return None, None, None
 
-# Carregar dados
 df, stats, category_stats = load_data()
 
-# Sidebar
 with st.sidebar:
     st.header("⚙️ Configurações")
     
-    # Informações do usuário
     if 'username' in st.session_state:
         st.success(f"👤 Logado como: **{st.session_state.username}**")
     
-    # Botão de logout
     if st.button("🚪 Logout", width='stretch', type="secondary"):
         st.session_state.authenticated = False
         st.session_state.username = None
@@ -216,14 +191,12 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Atualizar dados
     if st.button("🔄 Atualizar Dados", width='stretch'):
         st.cache_data.clear()
         st.rerun()
     
     st.markdown("---")
     
-    # Informações
     st.header("ℹ️ Informações")
     if stats:
         st.success("✅ Dados carregados com sucesso")
@@ -235,7 +208,6 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Links
     st.header("🔗 Links Úteis")
     st.markdown("""
     - [API Docs](http://localhost:8000/api/v1/docs)
@@ -243,17 +215,14 @@ with st.sidebar:
     - [GitHub](https://github.com)
     """)
 
-# Verificar se dados estão disponíveis
 if df is None or stats is None:
     st.error("⚠️ Dados não disponíveis. Por favor, execute o scraping primeiro:")
     st.code("python run_scraping.py", language="bash")
     st.stop()
 
-# Métricas principais
 st.header("📊 Métricas Principais")
 col1, col2, col3, col4 = st.columns(4)
 
-# Cores para cada card
 colors = [
     "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
@@ -303,7 +272,6 @@ with col4:
 
 st.markdown("---")
 
-# Segunda linha de métricas
 col1, col2, col3, col4 = st.columns(4)
 
 colors2 = [
@@ -359,10 +327,8 @@ with col4:
 
 st.markdown("---")
 
-# Gráficos
 st.header("📈 Visualizações")
 
-# Tabs para organizar gráficos
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Distribuições",
     "📁 Por Categoria",
@@ -371,12 +337,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📋 Tabela de Dados"
 ])
 
-# Tab 1: Distribuições
 with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        # Distribuição de Ratings
         st.subheader("⭐ Distribuição de Ratings")
         rating_dist = stats['rating_distribution']
         rating_df = pd.DataFrame({
@@ -396,7 +360,6 @@ with tab1:
         st.plotly_chart(fig_rating, width='stretch')
     
     with col2:
-        # Distribuição de Disponibilidade
         st.subheader("📦 Distribuição de Disponibilidade")
         availability_data = {
             'Status': ['Em Estoque', 'Fora de Estoque'],
@@ -414,18 +377,15 @@ with tab1:
         )
         st.plotly_chart(fig_availability, width='stretch')
 
-# Tab 2: Por Categoria
 with tab2:
     st.subheader("📁 Estatísticas por Categoria")
     
-    # Preparar dados
     cat_df = pd.DataFrame(category_stats)
     
     if not cat_df.empty:
         col1, col2 = st.columns(2)
         
         with col1:
-            # Top 10 categorias por quantidade
             st.subheader("🔝 Top 10 Categorias (por quantidade)")
             top_categories = cat_df.nlargest(10, 'total_books')
             
@@ -442,7 +402,6 @@ with tab2:
             st.plotly_chart(fig_top, width='stretch')
         
         with col2:
-            # Preço médio por categoria
             st.subheader("💰 Preço Médio por Categoria (Top 10)")
             top_price = cat_df.nlargest(10, 'average_price')
             
@@ -457,7 +416,6 @@ with tab2:
             fig_price.update_xaxes(tickangle=45)
             st.plotly_chart(fig_price, width='stretch')
         
-        # Tabela completa de categorias
         st.subheader("📋 Tabela Completa de Categorias")
         st.dataframe(
             cat_df.sort_values('total_books', ascending=False),
@@ -465,14 +423,12 @@ with tab2:
             hide_index=True
         )
 
-# Tab 3: Análise de Preços
 with tab3:
     st.subheader("💰 Análise de Preços")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # Histograma de preços
         st.subheader("📊 Distribuição de Preços")
         fig_hist = px.histogram(
             df,
@@ -485,7 +441,6 @@ with tab3:
         st.plotly_chart(fig_hist, width='stretch')
     
     with col2:
-        # Box plot de preços
         st.subheader("📦 Box Plot de Preços")
         fig_box = px.box(
             df,
@@ -495,7 +450,6 @@ with tab3:
         )
         st.plotly_chart(fig_box, width='stretch')
     
-    # Preço por categoria
     st.subheader("💰 Preço por Categoria")
     price_by_cat = df.groupby('category')['price'].mean().sort_values(ascending=False).head(15)
     price_cat_df = pd.DataFrame({
@@ -514,14 +468,12 @@ with tab3:
     fig_price_cat.update_xaxes(tickangle=45)
     st.plotly_chart(fig_price_cat, width='stretch')
 
-# Tab 4: Análise de Ratings
 with tab4:
     st.subheader("⭐ Análise de Ratings")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # Rating por categoria
         st.subheader("⭐ Rating Médio por Categoria (Top 10)")
         rating_by_cat = df.groupby('category')['rating'].mean().sort_values(ascending=False).head(10)
         rating_cat_df = pd.DataFrame({
@@ -541,7 +493,6 @@ with tab4:
         st.plotly_chart(fig_rating_cat, width='stretch')
     
     with col2:
-        # Distribuição de ratings
         st.subheader("📊 Distribuição de Ratings")
         rating_counts = df['rating'].value_counts().sort_index()
         rating_dist_df = pd.DataFrame({
@@ -558,10 +509,9 @@ with tab4:
         )
         st.plotly_chart(fig_rating_dist, width='stretch')
     
-    # Scatter: Preço vs Rating
     st.subheader("📈 Preço vs Rating")
     fig_scatter = px.scatter(
-        df.sample(min(1000, len(df))),  # Amostra para performance
+        df.sample(min(1000, len(df))),
         x='price',
         y='rating',
         color='in_stock',
@@ -573,11 +523,9 @@ with tab4:
     )
     st.plotly_chart(fig_scatter, width='stretch')
 
-# Tab 5: Tabela de Dados
 with tab5:
     st.subheader("📋 Dados Completos")
     
-    # Filtros
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -603,7 +551,6 @@ with tab5:
             value=(float(df['price'].min()), float(df['price'].max()))
         )
     
-    # Aplicar filtros
     filtered_df = df.copy()
     
     if categories_filter:
@@ -617,7 +564,6 @@ with tab5:
     
     st.info(f"📊 Mostrando {len(filtered_df)} de {len(df)} livros")
     
-    # Tabela
     display_columns = ['id', 'title', 'category', 'price', 'rating', 'in_stock', 'quantity']
     st.dataframe(
         filtered_df[display_columns],
@@ -625,7 +571,6 @@ with tab5:
         hide_index=True
     )
     
-    # Download
     csv = filtered_df.to_csv(index=False)
     st.download_button(
         label="📥 Download CSV",
@@ -634,7 +579,6 @@ with tab5:
         mime="text/csv"
     )
 
-# Footer
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666; padding: 2rem;'>

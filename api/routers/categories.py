@@ -1,6 +1,3 @@
-"""
-Endpoints relacionados a categorias
-"""
 from fastapi import APIRouter, Depends
 import logging
 

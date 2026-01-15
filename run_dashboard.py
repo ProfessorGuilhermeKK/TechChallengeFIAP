@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Script para executar o dashboard Streamlit
-"""
 import subprocess
 import sys
 from pathlib import Path
@@ -18,7 +15,6 @@ if __name__ == "__main__":
     print("=" * 60)
     print()
     
-    # Executar streamlit
     dashboard_path = Path(__file__).parent / "dashboard.py"
     subprocess.run([
         sys.executable,

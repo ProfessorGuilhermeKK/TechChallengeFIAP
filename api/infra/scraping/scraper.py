@@ -1,7 +1,3 @@
-"""
-Web Scraper para Books to Scrape
-Extrai informações de livros do site https://books.toscrape.com/
-"""
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -11,7 +7,6 @@ from typing import List, Dict
 from pathlib import Path
 import re
 
-# Configurar logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -20,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class BooksScraper:
-    """Classe para realizar web scraping de livros"""
-    
     BASE_URL = "https://books.toscrape.com"
     RATING_MAP = {
         'One': 1,
@@ -32,12 +25,6 @@ class BooksScraper:
     }
     
     def __init__(self, base_url: str = None):
-        """
-        Inicializa o scraper
-        
-        Args:
-            base_url: URL base do site (opcional)
-        """
         self.base_url = base_url or self.BASE_URL
         self.session = requests.Session()
         self.session.headers.update({
@@ -45,7 +32,6 @@ class BooksScraper:
         })
         
     def _extract_rating(self, book_element) -> int:
-        """Extrai o rating do livro"""
         star_rating = book_element.find('p', class_='star-rating')
         if star_rating:
             rating_class = star_rating.get('class', [])
@@ -55,22 +41,18 @@ class BooksScraper:
         return 0
     
     def _extract_price(self, price_text: str) -> float:
-        """Extrai o valor numérico do preço"""
         try:
-            # Remove símbolos de moeda e converte para float
             price_clean = re.sub(r'[^\d.]', '', price_text)
             return float(price_clean)
         except (ValueError, AttributeError):
             return 0.0
     
     def _extract_availability(self, availability_text: str) -> Dict[str, any]:
-        """Extrai informações de disponibilidade"""
         if not availability_text:
             return {'in_stock': False, 'quantity': 0}
         
         in_stock = 'in stock' in availability_text.lower()
         
-        # Tenta extrair quantidade
         quantity_match = re.search(r'\((\d+) available\)', availability_text)
         quantity = int(quantity_match.group(1)) if quantity_match else (1 if in_stock else 0)
         
@@ -80,21 +62,11 @@ class BooksScraper:
         }
     
     def scrape_book_details(self, book_url: str) -> Dict[str, any]:
-        """
-        Extrai detalhes completos de um livro individual
-        
-        Args:
-            book_url: URL da página do livro
-            
-        Returns:
-            Dicionário com informações detalhadas do livro
-        """
         try:
             response = self.session.get(book_url, timeout=10)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'lxml')
             
-            # Informações da tabela de produto
             product_info = {}
             table = soup.find('table', class_='table-striped')
             if table:
@@ -104,7 +76,6 @@ class BooksScraper:
                     if th and td:
                         product_info[th.text.strip()] = td.text.strip()
             
-            # Descrição
             description_tag = soup.find('div', id='product_description')
             description = ''
             if description_tag:
@@ -126,16 +97,6 @@ class BooksScraper:
             return {}
     
     def scrape_page(self, page_url: str) -> List[Dict[str, any]]:
-        """
-        Extrai informações de todos os livros de uma página
-        (mantido para compatibilidade, mas agora reutiliza código otimizado)
-        
-        Args:
-            page_url: URL da página a ser extraída
-            
-        Returns:
-            Lista de dicionários com informações dos livros
-        """
         try:
             logger.info(f"Extraindo página: {page_url}")
             response = self.session.get(page_url, timeout=10)
@@ -152,40 +113,26 @@ class BooksScraper:
             return []
     
     def _extract_books_from_soup(self, soup: BeautifulSoup) -> List[Dict[str, any]]:
-        """
-        Extrai informações de livros a partir de um objeto BeautifulSoup já parseado
-        
-        Args:
-            soup: Objeto BeautifulSoup com o HTML da página
-            
-        Returns:
-            Lista de dicionários com informações dos livros
-        """
         books = []
         book_elements = soup.find_all('article', class_='product_pod')
         
         for idx, book in enumerate(book_elements, 1):
             try:
-                # Título e URL
                 title_tag = book.find('h3').find('a')
                 title = title_tag.get('title', '')
                 book_relative_url = title_tag.get('href', '')
                 book_url = f"{self.base_url}/catalogue/{book_relative_url.replace('../', '')}"
                 
-                # Preço
                 price_tag = book.find('p', class_='price_color')
                 price_text = price_tag.text if price_tag else '£0.00'
                 price = self._extract_price(price_text)
                 
-                # Rating
                 rating = self._extract_rating(book)
                 
-                # Disponibilidade
                 availability_tag = book.find('p', class_='instock availability')
                 availability_text = availability_tag.text.strip() if availability_tag else ''
                 availability = self._extract_availability(availability_text)
                 
-                # Imagem
                 img_tag = book.find('img')
                 image_url = ''
                 if img_tag:
@@ -202,7 +149,7 @@ class BooksScraper:
                     'availability_text': availability_text,
                     'image_url': image_url,
                     'book_url': book_url,
-                    'category': ''  # Será preenchido depois
+                    'category': ''
                 }
                 
                 books.append(book_data)
@@ -215,16 +162,6 @@ class BooksScraper:
         return books
     
     def scrape_category(self, category_url: str, category_name: str) -> List[Dict[str, any]]:
-        """
-        Extrai todos os livros de uma categoria específica (OTIMIZADO - sem chamadas duplicadas)
-        
-        Args:
-            category_url: URL da categoria
-            category_name: Nome da categoria
-            
-        Returns:
-            Lista de dicionários com informações dos livros
-        """
         all_books = []
         current_url = category_url
         page_num = 1
@@ -233,32 +170,27 @@ class BooksScraper:
             logger.info(f"Extraindo categoria '{category_name}' - Página {page_num}")
             
             try:
-                # OTIMIZAÇÃO: Faz apenas UMA requisição HTTP por página
                 response = self.session.get(current_url, timeout=10)
                 response.raise_for_status()
                 soup = BeautifulSoup(response.content, 'lxml')
                 
-                # Extrair livros usando o soup já parseado (sem nova requisição!)
                 books = self._extract_books_from_soup(soup)
                 
-                # Adicionar categoria aos livros
                 for book in books:
                     book['category'] = category_name
                 
                 all_books.extend(books)
                 logger.info(f"✓ {len(books)} livros extraídos desta página")
                 
-                # Verificar se há próxima página
                 next_button = soup.find('li', class_='next')
                 if next_button:
                     next_link = next_button.find('a')
                     if next_link:
                         next_relative_url = next_link.get('href', '')
-                        # Construir URL completa da próxima página
                         base_category_url = current_url.rsplit('/', 1)[0]
                         current_url = f"{base_category_url}/{next_relative_url}"
                         page_num += 1
-                        time.sleep(0.3)  # Pausa reduzida (era 0.5s, agora 0.3s)
+                        time.sleep(0.3)
                     else:
                         current_url = None
                 else:
@@ -272,12 +204,6 @@ class BooksScraper:
         return all_books
     
     def get_all_categories(self) -> List[Dict[str, str]]:
-        """
-        Obtém lista de todas as categorias disponíveis
-        
-        Returns:
-            Lista de dicionários com nome e URL de cada categoria
-        """
         categories = []
         
         try:
@@ -289,7 +215,6 @@ class BooksScraper:
             category_list = soup.find('ul', class_='nav-list')
             
             if category_list:
-                # Pega todas as categorias exceto a primeira (que é "Books")
                 category_links = category_list.find('ul').find_all('a')
                 
                 for link in category_links:
@@ -310,15 +235,6 @@ class BooksScraper:
         return categories
     
     def scrape_all_books(self, use_cache: bool = True) -> pd.DataFrame:
-        """
-        Extrai todos os livros de todas as categorias do site (OTIMIZADO)
-        
-        Args:
-            use_cache: Se True, usa cache da sessão HTTP (default: True)
-        
-        Returns:
-            DataFrame pandas com todos os livros
-        """
         logger.info("🚀 Iniciando scraping completo do site (MODO OTIMIZADO)...")
         logger.info("Otimizações ativas:")
         logger.info("  ✓ Eliminação de requisições HTTP duplicadas")
@@ -345,13 +261,10 @@ class BooksScraper:
             category_time = time.time() - category_start
             logger.info(f"⏱️  Tempo da categoria: {category_time:.2f}s")
             
-            # Pausa reduzida entre categorias (era 1s, agora 0.5s)
             time.sleep(0.5)
         
-        # Criar DataFrame
         df = pd.DataFrame(all_books)
         
-        # Adicionar ID único
         if not df.empty:
             df.insert(0, 'id', range(1, len(df) + 1))
         
@@ -369,22 +282,12 @@ class BooksScraper:
         return df
     
     def save_to_csv(self, df: pd.DataFrame, filepath: str):
-        """
-        Salva DataFrame em arquivo CSV
-        
-        Args:
-            df: DataFrame a ser salvo
-            filepath: Caminho do arquivo CSV
-        """
         try:
-            # Criar diretório se não existir
             Path(filepath).parent.mkdir(parents=True, exist_ok=True)
             
-            # Salvar CSV
             df.to_csv(filepath, index=False, encoding='utf-8')
             logger.info(f"Dados salvos com sucesso em: {filepath}")
             
-            # Exibir estatísticas
             logger.info(f"\nEstatísticas dos dados:")
             logger.info(f"- Total de registros: {len(df)}")
             logger.info(f"- Colunas: {', '.join(df.columns.tolist())}")
@@ -398,13 +301,10 @@ class BooksScraper:
 
 
 def main():
-    """Função principal para executar o scraping"""
     scraper = BooksScraper()
     
-    # Realizar scraping
     df_books = scraper.scrape_all_books()
     
-    # Salvar em CSV
     scraper.save_to_csv(df_books, 'data/books.csv')
     
     print("\n✅ Scraping concluído com sucesso!")

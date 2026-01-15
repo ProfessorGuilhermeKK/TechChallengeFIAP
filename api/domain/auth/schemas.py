@@ -3,7 +3,6 @@ from typing import Optional
 
 
 class Token(BaseModel):
-    """Token de autenticação JWT"""
     access_token: str = Field(..., description="Token de acesso")
     refresh_token: str = Field(..., description="Token de refresh (use no /auth/refresh)")
     token_type: str = Field(default="bearer", description="Tipo do token")
@@ -16,12 +15,10 @@ class RefreshRequest(BaseModel):
 
 
 class TokenData(BaseModel):
-    """Dados extraídos do token"""
     username: Optional[str] = None
 
 
 class User(BaseModel):
-    """Usuário do sistema"""
     username: str = Field(..., description="Nome de usuário")
     email: Optional[str] = Field(None, description="Email do usuário")
     full_name: Optional[str] = Field(None, description="Nome completo")
@@ -29,5 +26,4 @@ class User(BaseModel):
 
 
 class UserInDB(User):
-    """Usuário armazenado no banco de dados"""
     hashed_password: str

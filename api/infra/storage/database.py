@@ -1,6 +1,3 @@
-"""
-Gerenciamento de dados - carregamento e manipulação do CSV
-"""
 import pandas as pd
 from pathlib import Path
 from typing import Optional, List, Dict
@@ -10,21 +7,12 @@ logger = logging.getLogger(__name__)
 
 
 class BooksDatabase:
-    """Classe para gerenciar o acesso aos dados de livros"""
-    
     def __init__(self, data_path: str = "data/books.csv"):
-        """
-        Inicializa o banco de dados
-        
-        Args:
-            data_path: Caminho para o arquivo CSV
-        """
         self.data_path = Path(data_path)
         self._df: Optional[pd.DataFrame] = None
         self._load_data()
     
     def _load_data(self):
-        """Carrega os dados do CSV"""
         try:
             if self.data_path.exists():
                 self._df = pd.read_csv(self.data_path)
@@ -37,12 +25,10 @@ class BooksDatabase:
             self._df = pd.DataFrame()
     
     def reload_data(self):
-        """Recarrega os dados do CSV"""
         self._load_data()
     
     @property
     def df(self) -> pd.DataFrame:
-        """Retorna o DataFrame"""
         if self._df is None or self._df.empty:
             self._load_data()
         return self._df
@@ -54,37 +40,16 @@ class BooksDatabase:
         return len(self._df)
     
     def is_available(self) -> bool:
-        """Verifica se os dados estão disponíveis"""
         return self._df is not None and not self._df.empty
     
     def get_all_books(self, skip: int = 0, limit: int = 100) -> List[Dict]:
-        """
-        Retorna todos os livros com paginação
-        
-        Args:
-            skip: Número de registros a pular
-            limit: Número máximo de registros a retornar
-            
-        Returns:
-            Lista de dicionários com informações dos livros
-        """
         if not self.is_available():
             return []
         
-        # Aplicar paginação
         df_paginated = self.df.iloc[skip:skip + limit]
         return df_paginated.to_dict('records')
     
     def get_book_by_id(self, book_id: int) -> Optional[Dict]:
-        """
-        Retorna um livro específico pelo ID
-        
-        Args:
-            book_id: ID do livro
-            
-        Returns:
-            Dicionário com informações do livro ou None
-        """
         if not self.is_available():
             return None
         
@@ -105,28 +70,11 @@ class BooksDatabase:
         skip: int = 0,
         limit: int = 100
     ) -> List[Dict]:
-        """
-        Busca livros com filtros
-        
-        Args:
-            title: Filtro por título (busca parcial)
-            category: Filtro por categoria
-            min_price: Preço mínimo
-            max_price: Preço máximo
-            min_rating: Rating mínimo
-            in_stock: Filtro por disponibilidade
-            skip: Número de registros a pular
-            limit: Número máximo de registros a retornar
-            
-        Returns:
-            Lista de dicionários com livros filtrados
-        """
         if not self.is_available():
             return []
         
         df_filtered = self.df.copy()
         
-        # Aplicar filtros
         if title:
             df_filtered = df_filtered[
                 df_filtered['title'].str.contains(title, case=False, na=False)
@@ -149,17 +97,10 @@ class BooksDatabase:
         if in_stock is not None:
             df_filtered = df_filtered[df_filtered['in_stock'] == in_stock]
         
-        # Aplicar paginação
         df_paginated = df_filtered.iloc[skip:skip + limit]
         return df_paginated.to_dict('records')
     
     def get_all_categories(self) -> List[Dict[str, any]]:
-        """
-        Retorna todas as categorias com contagem de livros
-        
-        Returns:
-            Lista de dicionários com categorias e contagens
-        """
         if not self.is_available():
             return []
         
@@ -167,19 +108,9 @@ class BooksDatabase:
         return categories.to_dict('records')
     
     def get_top_rated_books(self, limit: int = 10) -> List[Dict]:
-        """
-        Retorna os livros com melhor avaliação
-        
-        Args:
-            limit: Número de livros a retornar
-            
-        Returns:
-            Lista de livros com melhor rating
-        """
         if not self.is_available():
             return []
         
-        # Ordenar por rating (decrescente) e depois por título
         df_sorted = self.df.sort_values(['rating', 'title'], ascending=[False, True])
         return df_sorted.head(limit).to_dict('records')
     
@@ -190,18 +121,6 @@ class BooksDatabase:
         skip: int = 0,
         limit: int = 100
     ) -> List[Dict]:
-        """
-        Retorna livros em uma faixa de preço
-        
-        Args:
-            min_price: Preço mínimo
-            max_price: Preço máximo
-            skip: Número de registros a pular
-            limit: Número máximo de registros a retornar
-            
-        Returns:
-            Lista de livros na faixa de preço
-        """
         if not self.is_available():
             return []
         
@@ -213,16 +132,9 @@ class BooksDatabase:
         return df_paginated.to_dict('records')
     
     def get_stats_overview(self) -> Dict[str, any]:
-        """
-        Retorna estatísticas gerais da coleção
-        
-        Returns:
-            Dicionário com estatísticas
-        """
         if not self.is_available():
             return {}
         
-        # Distribuição de ratings
         rating_dist = self.df['rating'].value_counts().to_dict()
         rating_distribution = {str(k): int(v) for k, v in rating_dist.items()}
         
@@ -241,12 +153,6 @@ class BooksDatabase:
         return stats
     
     def get_category_stats(self) -> List[Dict[str, any]]:
-        """
-        Retorna estatísticas detalhadas por categoria
-        
-        Returns:
-            Lista de dicionários com estatísticas por categoria
-        """
         if not self.is_available():
             return []
         
@@ -267,37 +173,26 @@ class BooksDatabase:
             
             stats_list.append(stats)
         
-        # Ordenar por total de livros (decrescente)
         stats_list.sort(key=lambda x: x['total_books'], reverse=True)
         
         return stats_list
     
     def get_ml_features(self) -> List[Dict[str, any]]:
-        """
-        Retorna dados formatados para features de ML
-        
-        Returns:
-            Lista de features para ML
-        """
         if not self.is_available():
             return []
         
         df_ml = self.df.copy()
         
-        # Normalizar preço (0-1)
         price_min = df_ml['price'].min()
         price_max = df_ml['price'].max()
         df_ml['price_normalized'] = (df_ml['price'] - price_min) / (price_max - price_min)
         
-        # Normalizar rating (0-1)
         df_ml['rating_normalized'] = df_ml['rating'] / 5.0
         
-        # Codificar categoria
         categories = df_ml['category'].unique()
         category_map = {cat: idx for idx, cat in enumerate(categories)}
         df_ml['category_encoded'] = df_ml['category'].map(category_map)
         
-        # Selecionar colunas relevantes
         features = df_ml[[
             'id', 'title', 'price', 'rating', 'category',
             'in_stock', 'price_normalized', 'rating_normalized', 'category_encoded'
@@ -306,20 +201,10 @@ class BooksDatabase:
         return features.to_dict('records')
 
 
-# Instância global do banco de dados
 _db_instance: Optional[BooksDatabase] = None
 
 
 def get_database(data_path: str = "data/books.csv") -> BooksDatabase:
-    """
-    Retorna instância singleton do banco de dados
-    
-    Args:
-        data_path: Caminho para o arquivo CSV
-        
-    Returns:
-        Instância do BooksDatabase
-    """
     global _db_instance
     if _db_instance is None:
         _db_instance = BooksDatabase(data_path)

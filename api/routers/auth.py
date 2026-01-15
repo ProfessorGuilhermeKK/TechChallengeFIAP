@@ -1,6 +1,3 @@
-"""
-Endpoints de autenticação JWT
-"""
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 

@@ -1,6 +1,3 @@
-"""
-Endpoint de health check
-"""
 from fastapi import APIRouter
 from datetime import datetime
 from api.domain.common.health_schemas import HealthCheck
@@ -23,7 +20,6 @@ router = APIRouter(
     description="Verifica o status da API e a disponibilidade dos dados"
 )
 async def health_check():
-    """Verifica o status da API"""
     db = get_database()
     
     data_available = db.is_available()

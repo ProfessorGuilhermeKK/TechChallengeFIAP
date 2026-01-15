@@ -35,7 +35,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_auth(_: Request, exc: AuthError):
         return JSONResponse(status_code=401, content={"error": "unauthorized", "message": str(exc)})
 
-    # Erros do próprio FastAPI (ex.: validação do body/query)
     @app.exception_handler(RequestValidationError)
     async def handle_validation(_: Request, exc: RequestValidationError):
         return JSONResponse(
@@ -43,12 +42,10 @@ def register_exception_handlers(app: FastAPI) -> None:
             content={"error": "validation_error", "message": "Invalid request", "detail": exc.errors()},
         )
 
-    # Se algum controller ainda levantar HTTPException (ou libs levantarem)
     @app.exception_handler(HTTPException)
     async def handle_http_exception(_: Request, exc: HTTPException):
         return JSONResponse(status_code=exc.status_code, content={"error": "http_error", "message": exc.detail})
 
-    # Fallback (não vaza detalhes em produção)
     @app.exception_handler(Exception)
     async def handle_unexpected(_: Request, exc: Exception):
         logger.exception("Unhandled error", exc_info=exc)

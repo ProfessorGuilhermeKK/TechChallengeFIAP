@@ -3,34 +3,33 @@ from typing import Optional
 
 
 class ErrorResponse(BaseModel):
-    """Resposta de erro padrão"""
     error: str = Field(..., description="Tipo do erro")
     message: str = Field(..., description="Mensagem do erro")
     detail: Optional[str] = Field(None, description="Detalhes adicionais")
     
-
+    
 class DomainError(Exception):
-    """Base para erros de domínio (não-HTTP)."""
+    pass
 
 
 class DataNotAvailableError(DomainError):
-    """CSV não carregado / scraping não rodou ainda."""
+    pass
 
 
 class NotFoundError(DomainError):
-    """Recurso não encontrado."""
+    pass
 
 
 class InvalidInputError(DomainError):
-    """Entrada inválida (ex.: min_price > max_price)."""
+    pass
 
 
 class AuthError(DomainError):
-    """Erro de autenticação (credenciais/token)."""
+    pass
 
 
 class ForbiddenError(AuthError):
-    """Autenticado, mas sem permissão."""
+    pass
 
 
 class InvalidCredentialsError(AuthError):

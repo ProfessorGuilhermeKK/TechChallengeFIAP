@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 
 
 class StatsOverview(BaseModel):
-    """Estatísticas gerais da coleção"""
     total_books: int = Field(..., description="Total de livros")
     total_categories: int = Field(..., description="Total de categorias")
     average_price: float = Field(..., description="Preço médio")
@@ -15,7 +14,6 @@ class StatsOverview(BaseModel):
 
 
 class CategoryStats(BaseModel):
-    """Estatísticas de uma categoria"""
     category: str = Field(..., description="Nome da categoria")
     total_books: int = Field(..., description="Total de livros")
     average_price: float = Field(..., description="Preço médio")

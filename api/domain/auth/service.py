@@ -55,7 +55,6 @@ class AuthService:
             expires_delta=access_token_expires,
         )
 
-        # opcional: rotacionar refresh token (mesmo stateless)
         new_refresh_token = create_refresh_token(data={"sub": username})
 
         return {

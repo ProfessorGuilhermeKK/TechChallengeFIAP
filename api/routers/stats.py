@@ -1,6 +1,3 @@
-"""
-Endpoints de estatísticas e insights
-"""
 from fastapi import APIRouter, Depends
 from typing import List
 import logging
@@ -27,7 +24,6 @@ router = APIRouter(
 async def get_stats_overview(
     service: StatsService = Depends(get_stats_service),
 ):
-    """Retorna estatísticas gerais da coleção"""
     return service.get_overview()
 
 
@@ -40,5 +36,4 @@ async def get_stats_overview(
 async def get_category_stats(
     service: StatsService = Depends(get_stats_service),
 ):
-    """Retorna estatísticas detalhadas por categoria"""
     return service.get_category_stats()

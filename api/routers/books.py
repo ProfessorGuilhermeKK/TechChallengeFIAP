@@ -1,6 +1,3 @@
-"""
-Endpoints relacionados a livros
-"""
 from fastapi import APIRouter, Depends, Query, Path
 from typing import Optional, List
 

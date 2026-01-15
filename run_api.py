@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Script para executar a API
-"""
 import uvicorn
 from api.core.config import get_settings
 

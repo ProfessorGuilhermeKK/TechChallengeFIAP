@@ -3,7 +3,6 @@ from typing import List
 
 
 class Book(BaseModel):
-    """Modelo de um livro"""
     id: int = Field(..., description="ID único do livro")
     title: str = Field(..., description="Título do livro")
     price: float = Field(..., description="Preço do livro em libras")
@@ -20,7 +19,6 @@ class Book(BaseModel):
 
 
 class BookList(BaseModel):
-    """Resposta com lista de livros"""
     total: int = Field(..., description="Total de livros")
     page: int = Field(default=1, description="Página atual")
     page_size: int = Field(default=50, description="Tamanho da página")

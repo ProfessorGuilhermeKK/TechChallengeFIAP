@@ -7,15 +7,6 @@ from api.infra.storage.database import BooksDatabase
 
 
 class BooksService:
-    """
-    Service (regra de negócio).
-
-    Aqui fica:
-    - validações
-    - paginação
-    - "montagem" de resposta (total/page/page_size/books)
-    """
-
     def __init__(self, db: BooksDatabase):
         self.db = db
 
@@ -79,8 +70,6 @@ class BooksService:
             limit=page_size,
         )
 
-        # Mantendo o comportamento atual do router:
-        # ele calcula o total rodando a busca "sem paginação" com limit gigante. :contentReference[oaicite:1]{index=1}
         all_results = self.db.search_books(
             title=title,
             category=category,
@@ -118,7 +107,6 @@ class BooksService:
             limit=page_size,
         )
 
-        # Mantendo o comportamento atual do router (total com limit gigante). :contentReference[oaicite:2]{index=2}
         all_books = self.db.get_books_by_price_range(
             min_price=min_price,
             max_price=max_price,

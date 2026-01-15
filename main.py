@@ -1,6 +1,3 @@
-"""
-Aplicação principal da API de Livros
-"""
 import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,8 +13,6 @@ from api.core.config import get_settings
 from api.core.exception_handlers import register_exception_handlers
 from api.routers import books, categories, stats, health, auth, ml, scraping
 from api.infra.storage.database import get_database
-
-# Configurar logging
 from api.core.logger import setup_logging, request_id_var, user_var
 setup_logging()
 
@@ -27,17 +22,13 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifecycle events"""
-    # Startup
     logger.info("Starting Books API...")
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"API Version: {settings.api_version}")
     
-    # Criar diretórios necessários
     Path("data").mkdir(exist_ok=True)
     Path("logs").mkdir(exist_ok=True)
     
-    # Carregar dados
     db = get_database(settings.data_path)
     if db.is_available():
         logger.info(f"Data loaded: {len(db.df)} books available")
@@ -46,11 +37,9 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
     logger.info("Shutting down Books API...")
 
 
-# Criar aplicação FastAPI
 app = FastAPI(
     title=settings.api_title,
     description=settings.api_description,
@@ -69,17 +58,15 @@ Instrumentator().instrument(app).expose(
     include_in_schema=False,
 )
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar origens permitidas
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Middleware para logging de requisições
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
@@ -127,11 +114,9 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-# Rota raiz
 @app.get("/", tags=["root"])
 async def root():
-    """Rota raiz da API"""
-    dashboard_url = "https://seu-dashboard.streamlit.app"  # Atualize com sua URL do Streamlit Cloud
+    dashboard_url = "https://seu-dashboard.streamlit.app"
     
     return {
         "message": "Books API - Tech Challenge FIAP",
@@ -143,7 +128,6 @@ async def root():
     }
 
 
-# Incluir routers
 api_prefix = f"/api/{settings.api_version}"
 
 app.include_router(health.router, prefix=api_prefix)

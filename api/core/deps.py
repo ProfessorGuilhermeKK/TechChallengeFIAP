@@ -10,17 +10,12 @@ from api.infra.storage.database import BooksDatabase, get_database
 
 
 def get_books_database() -> BooksDatabase:
-    """
-    Dependency: entrega o 'database' (CSV/pandas).
-    O get_database() do projeto já costuma devolver singleton/cacheado.
-    """
     return get_database()
 
 
 def get_books_service(
     repo: BooksDatabase = Depends(get_books_database),
 ) -> BooksService:
-    """Dependency: service do domínio de books."""
     return BooksService(repo)
 
 
@@ -43,7 +38,6 @@ def get_scraping_service(
 
 
 def get_auth_service() -> AuthService:
-    # service é stateless, pode ser instância nova por request sem problema
     return AuthService()
 
 

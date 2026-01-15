@@ -45,27 +45,6 @@ class MLService:
         }
 
     def submit_predictions(self, predictions):
-        """
-        Recebe predições de modelos de ML (MOCKADO).
-        
-        ⚠️ IMPLEMENTAÇÃO MOCKADA:
-        Este método atualmente apenas loga e retorna as predições recebidas
-        para fins de demonstração. A integração real com modelos de ML será
-        implementada nas próximas fases do projeto.
-        
-        Funcionalidades futuras planejadas:
-        - Armazenar predições em banco de dados
-        - Validar predições contra dados reais
-        - Calcular métricas de performance dos modelos
-        - Sistema de versionamento de modelos
-        - Cache de predições
-        
-        Args:
-            predictions: Lista de predições no formato MLPrediction
-            
-        Returns:
-            Lista de predições recebidas (mockado)
-        """
         logger.info(f"[MOCKADO] Received {len(predictions)} predictions")
         logger.debug("Este endpoint está mockado. Implementação real de ML será adicionada futuramente.")
         return predictions
@@ -81,7 +60,7 @@ class MLService:
 
         total_books = stats.get("total_books", 0) or 0
         in_stock = stats.get("books_in_stock", 0) or 0
-        denom = stats.get("total_books", 1) or 1  # igual ao router atual (evita div/0). :contentReference[oaicite:3]{index=3}
+        denom = stats.get("total_books", 1) or 1
 
         return {
             "dataset_size": total_books,

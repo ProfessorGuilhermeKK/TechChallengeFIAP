@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Script para executar o web scraping
-"""
 from api.infra.scraping.scraper import main
 
 if __name__ == "__main__":

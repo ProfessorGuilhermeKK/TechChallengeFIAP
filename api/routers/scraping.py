@@ -1,6 +1,3 @@
-"""
-Endpoint para trigger de scraping (protegido por autenticação)
-"""
 from fastapi import APIRouter, Depends, BackgroundTasks
 from api.core.auth import get_current_active_user
 import logging
