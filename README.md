@@ -21,12 +21,10 @@ Este projeto foi desenvolvido como parte do Tech Challenge da FIAP, focado em cr
 
 ## 📋 Índice
 
-- [Arquitetura](#-arquitetura)
 - [Instalação](#-instalação)
 - [Uso](#-uso)
 - [Endpoints da API](#-endpoints-da-api)
 - [Autenticação](#-autenticação)
-- [Deploy](#-deploy)
 - [Machine Learning](#-machine-learning)
 - [Exemplos](#-exemplos)
 - [Monitoramento](#-monitoramento)
@@ -34,81 +32,6 @@ Este projeto foi desenvolvido como parte do Tech Challenge da FIAP, focado em cr
 - [Roadmap Futuro](#-roadmap-futuro)
 - [Autores](#-autores)
 - [Contribuindo](#-contribuindo)
-
-## 🏗️ Arquitetura
-
-```
-┌─────────────────┐
-│  Web Scraping   │
-│ (books.toscrape)│
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   CSV Storage   │
-│  (data/books)   │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   FastAPI App   │
-│  (REST API)     │
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-┌─────┐   ┌─────┐
-│Dados│   │ ML  │
-│Users│   │Users│
-└─────┘   └─────┘
-```
-
-### Pipeline de Dados
-
-1. **Ingestão**: Web scraping extrai dados do site Books to Scrape
-2. **Processamento**: Dados são limpos, transformados e salvos em CSV
-3. **API**: FastAPI serve os dados através de endpoints RESTful
-4. **Consumo**: Cientistas de dados e modelos ML consomem a API
-
-### Componentes do Sistema
-
-```
-TECH-CHALLENGE/
-├── api/                      # Módulo da API
-│   ├── routers/             # Endpoints organizados por domínio
-│   │   ├── books.py         # Endpoints de livros
-│   │   ├── categories.py    # Endpoints de categorias
-│   │   ├── stats.py         # Estatísticas e insights
-│   │   ├── health.py        # Health check
-│   │   ├── auth.py          # Autenticação JWT
-│   │   ├── ml.py            # Endpoints ML-Ready
-│   │   └── scraping.py      # Trigger de scraping
-│   ├── domain/              # Lógica de negócio
-│   │   ├── auth/           # Autenticação
-│   │   ├── books/          # Livros
-│   │   ├── categories/     # Categorias
-│   │   ├── ml/             # Machine Learning
-│   │   ├── scraping/       # Web Scraping
-│   │   └── stats/          # Estatísticas
-│   ├── infra/              # Infraestrutura
-│   │   ├── scraping/       # Web scraper
-│   │   └── storage/        # Gerenciamento de dados
-│   └── core/               # Configurações e autenticação
-├── data/                    # Armazenamento de dados
-│   └── books.csv           # Dados extraídos
-├── logs/                    # Logs da aplicação
-├── main.py                  # Aplicação principal
-├── dashboard.py            # Dashboard Streamlit
-├── requirements.txt        # Dependências Python
-├── run_api.py              # Script para subir a API
-├── run_dashboard.py        # Script para subir o dashboard
-├── run_scraping.py         # Script para executar o scraping
-├── ARCHITECTURE.md         # Documentação arquitetural
-├── Procfile                # Configuração para Heroku
-├── render.yaml             # Configuração para Render (RECOMENDADO)
-├── fly.toml                # Configuração para Fly.io
-└── railway.json            # Configuração para Railway
-```
 
 ## 🚀 Instalação
 
@@ -224,13 +147,13 @@ Para documentação completa sobre variáveis de ambiente, consulte [ENV_VARS.md
 
 #### 📚 Livros
 
-| Método | Endpoint                             | Descrição                      |
-| ------- | ------------------------------------ | -------------------------------- |
-| GET     | `/api/v1/books`                    | Lista todos os livros (paginado) |
-| GET     | `/api/v1/books/{id}`               | Detalhes de um livro específico |
-| GET     | `/api/v1/books/search/query`       | Busca livros por filtros         |
-| GET     | `/api/v1/books/top-rated/list`     | Livros mais bem avaliados        |
-| GET     | `/api/v1/books/price-range/filter` | Filtra por faixa de preço       |
+| Método | Endpoint                       | Descrição                        |
+| ------- | ------------------------------ | -------------------------------- |
+| GET     | `/api/v1/books`                | Lista todos os livros (paginado) |
+| GET     | `/api/v1/books/{id}`           | Detalhes de um livro específico  |
+| GET     | `/api/v1/books/search`         | Busca livros por filtros         |
+| GET     | `/api/v1/books/top-rated`      | Livros mais bem avaliados        |
+| GET     | `/api/v1/books/price-range`    | Filtra por faixa de preço        |
 
 #### 🏷️ Categorias
 
@@ -319,36 +242,6 @@ curl -X GET "http://localhost:8000/api/v1/scraping/trigger" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
-## 📦 Deploy
-
-### **Arquivos de Configuração Criados:**
-
-- ✅ `Procfile` - Para Heroku
-- ✅ `render.yaml` - Para Render
-- ✅ `fly.toml` - Para Fly.io
-- ✅ `railway.json` - Para Railway
-
-### **Deploy Rápido (Render - Recomendado):**
-
-1. Acesse https://render.com
-2. Crie conta e conecte GitHub
-3. Selecione "New Web Service"
-4. Conecte seu repositório
-5. Render detectará `render.yaml` automaticamente
-6. **Configure as variáveis de ambiente obrigatórias:**
-   - `SECRET_KEY` - Gere uma chave forte: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
-   - `ENVIRONMENT=production`
-   - `AUTH_USERS` - Defina seus usuários (formato: `user1:senha1:Nome1:email1@example.com,user2:senha2:Nome2:email2@example.com`)
-   - `DATA_PATH=data/books.csv` (já configurado no render.yaml)
-7. Clique em "Create Web Service"
-8. Aguarde deploy (2-5 minutos)
-
-**URL da API:** `https://seu-app.onrender.com`
-
-**Documentação:** `https://seu-app.onrender.com/api/v1/docs`
-
-> **Nota:** Após deploy, você pode executar o scraping via API (endpoint protegido) ou fazer upload do arquivo `data/books.csv`.
-
 ## 🤖 Machine Learning
 
 A API foi projetada pensando em consumo por modelos de ML.
@@ -433,13 +326,13 @@ curl -X GET "http://localhost:8000/api/v1/books?page=1&page_size=10"
 ### Buscar Livros por Título
 
 ```bash
-curl -X GET "http://localhost:8000/api/v1/books/search/query?title=Python"
+curl -X GET "http://localhost:8000/api/v1/books/search?title=Python"
 ```
 
 ### Filtrar por Categoria e Preço
 
 ```bash
-curl -X GET "http://localhost:8000/api/v1/books/search/query?category=Science&min_price=10&max_price=50"
+curl -X GET "http://localhost:8000/api/v1/books/search?category=Science&min_price=10&max_price=50"
 ```
 
 ### Obter Estatísticas
@@ -473,7 +366,7 @@ Resposta:
 ### Livros Mais Bem Avaliados
 
 ```bash
-curl -X GET "http://localhost:8000/api/v1/books/top-rated/list?limit=5"
+curl -X GET "http://localhost:8000/api/v1/books/top-rated?limit=5"
 ```
 
 ## 📊 Monitoramento
