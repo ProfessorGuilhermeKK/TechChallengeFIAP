@@ -212,6 +212,14 @@ Para documentação completa sobre variáveis de ambiente, consulte [ENV_VARS.md
 | ------- | ------------------ | --------------------- |
 | GET     | `/api/v1/health` | Status da API e dados |
 
+#### Métricas (Prometheus)
+
+| Método | Endpoint      | Descrição                                |
+| ------- | ------------- | ------------------------------------------ |
+| GET     | `/metrics`  | Métricas Prometheus para monitoramento |
+
+> **Nota:** O endpoint `/metrics` expõe métricas no formato Prometheus, incluindo informações sobre requisições HTTP, latência, e outras métricas de performance da aplicação.
+
 ### Endpoints de Insights (Opcionais)
 
 #### Estatísticas
