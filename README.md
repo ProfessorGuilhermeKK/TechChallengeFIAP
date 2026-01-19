@@ -570,3 +570,16 @@ Como parte do Tech Challenge, os integrantes concluíram o curso **"Beginner: In
 - Introduction to Responsible AI
 - Prompt Design in Vertex AI
 - Responsible AI: Applying AI Principles with Google Cloud
+
+---
+
+**Carlos Eduardo Araujo Del Isola**
+- Perfil: [https://www.skills.google/public_profiles/ec0d4b51-5b19-4a23-82de-680dae201a7f](https://www.skills.google/public_profiles/ec0d4b51-5b19-4a23-82de-680dae201a7f)
+- Pontuação: 1363 points - Silver League
+
+**Badges conquistadas:**
+- Introduction to Generative AI
+- Introduction to Large Language Models
+- Introduction to Responsible AI
+- Prompt Design in Vertex AI
+- Responsible AI: Applying AI Principles with Google Cloud
