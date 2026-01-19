@@ -116,7 +116,7 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/", tags=["root"])
 async def root():
-    dashboard_url = "https://seu-dashboard.streamlit.app"
+    dashboard_url = "https://techchallengefiap-inxmwiezovxzpqct9cprge.streamlit.app/"
     
     return {
         "message": "Books API - Tech Challenge FIAP",
